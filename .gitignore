@@ -40,3 +40,6 @@ target/*
 /target/
 
 .metadata/
+
+# DD2480 Clover #
+.clover
