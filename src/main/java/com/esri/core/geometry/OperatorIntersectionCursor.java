@@ -28,6 +28,7 @@ import java.util.ArrayList;
 
 class OperatorIntersectionCursor extends GeometryCursor {
 
+	public static boolean[] IDs = new boolean[39];
 	GeometryCursor m_inputGeoms;
 	GeometryCursor m_smallCursor;
 	ProgressTracker m_progress_tracker;
@@ -251,22 +252,25 @@ class OperatorIntersectionCursor extends GeometryCursor {
 		boolean bGeomIntersectorEmpty = m_geomIntersector.isEmpty();
 		boolean bResultIsEmpty = bInputEmpty || bGeomIntersectorEmpty;
 		if (!bResultIsEmpty) {// test envelopes
+			IDs[0] = true;
 			Envelope2D env2D1 = new Envelope2D();
 			input_geom.queryEnvelope2D(env2D1);
 			Envelope2D env2D2 = new Envelope2D();
 			m_geomIntersector.queryEnvelope2D(env2D2);
                         env2D2.inflate(2.0 * tolerance, 2.0 * tolerance);
 			bResultIsEmpty = !env2D1.isIntersecting(env2D2);
-		}
+		}else IDs[1] = true;
 
 		if (!bResultIsEmpty) {// try accelerated test
+			IDs[2] = true;
 			int res = OperatorInternalRelationUtils
 					.quickTest2D_Accelerated_DisjointOrContains(
 							m_geomIntersector, input_geom, tolerance);
 			if (res == OperatorInternalRelationUtils.Relation.Disjoint) {// disjoint
+				IDs[3] = true;
 				bResultIsEmpty = true;
 			} else if ((res & OperatorInternalRelationUtils.Relation.Within) != 0) {// intersector
-																					// is
+				IDs[4] = true;															// is
 																					// within
 																					// the
 																					// input_geom
@@ -277,14 +281,14 @@ class OperatorIntersectionCursor extends GeometryCursor {
 																					// first
 				return m_geomIntersector;
 			} else if ((res & OperatorInternalRelationUtils.Relation.Contains) != 0) {// intersector
-																						// contains
+				IDs[5] = true;																// contains
 																						// input_geom
 				return input_geom;
-			}
-		}
+			}else IDs[6] = true;
+		}else IDs[7] = true;
 
 		if (bResultIsEmpty) {// When one geometry or both are empty, we need to
-								// return an empty geometry.
+			IDs[8] = true;					// return an empty geometry.
 								// Here we do that end also ensure the type is
 								// correct.
 								// That is the lower dimension need to be
@@ -292,11 +296,16 @@ class OperatorIntersectionCursor extends GeometryCursor {
 								// empty Point need to be returned.
 			int dim1 = Geometry.getDimensionFromType(gtInput);
 			int dim2 = Geometry.getDimensionFromType(m_geomIntersectorType);
-			if (dim1 < dim2)
+			if (dim1 < dim2) {
+				IDs[9] = true;
 				return returnEmpty_(input_geom, bInputEmpty);
-			else if (dim1 > dim2)
+			}
+			else if (dim1 > dim2) {
+				IDs[10] = true;
 				return returnEmptyIntersector_();
+			}
 			else if (dim1 == 0) {
+				IDs[11] = true;
 				if (gtInput == Geometry.GeometryType.MultiPoint
 						&& m_geomIntersectorType == Geometry.GeometryType.Point) {// point
 																					// vs
@@ -309,15 +318,17 @@ class OperatorIntersectionCursor extends GeometryCursor {
 																					// Point
 																					// is
 																					// returned
-																					// always.
+					IDs[12] = true;																// always.
 					return returnEmptyIntersector_();
 				} else
+					IDs[13] = true;
 					// Both input and intersector have same gtype, or input is
 					// Point.
 					return returnEmpty_(input_geom, bInputEmpty);
 			} else
+				IDs[14] = true;
 				return returnEmpty_(input_geom, bInputEmpty);
-		}
+		} else IDs[15] = true;
 
 		// Note: No empty geometries after this point!
 
@@ -327,6 +338,8 @@ class OperatorIntersectionCursor extends GeometryCursor {
 		if ((m_dimensionMask == -1 || m_dimensionMask == (1 << 2))
 				&& gtInput == Geometry.GeometryType.Envelope
 				&& m_geomIntersectorType == Geometry.GeometryType.Envelope) {
+			IDs[16] = true;
+
 			Envelope env1 = (Envelope) input_geom;
 			Envelope env2 = (Envelope) m_geomIntersector;
 			Envelope2D env2D_1 = new Envelope2D();
@@ -338,60 +351,95 @@ class OperatorIntersectionCursor extends GeometryCursor {
 			env1.copyTo(result_env);
 			result_env.setEnvelope2D(env2D_1);
 			return result_env;
-		}
+		} else IDs[17] = true;
 
 		// Use clip for Point and Multi_point with Envelope
 		if ((gtInput == Geometry.GeometryType.Envelope && Geometry
 				.getDimensionFromType(m_geomIntersectorType) == 0)
 				|| (m_geomIntersectorType == Geometry.GeometryType.Envelope && Geometry
 						.getDimensionFromType(gtInput) == 0)) {
-			Envelope env = gtInput == Geometry.GeometryType.Envelope ? (Envelope) input_geom
-					: (Envelope) m_geomIntersector;
-			Geometry other = gtInput == Geometry.GeometryType.Envelope ? m_geomIntersector
-					: input_geom;
+			IDs[18] = true;
+
+			Envelope env;
+			if (gtInput == Geometry.GeometryType.Envelope) {
+				IDs[19] = true;
+				env = (Envelope) input_geom;
+			}
+			else {
+				IDs[20] = true;
+				env = (Envelope) m_geomIntersector;
+			}
+
+			Geometry other;
+			if (gtInput == Geometry.GeometryType.Envelope) {
+				IDs[21] = true;
+				other = m_geomIntersector;
+			}
+			else {
+				IDs[22] = true;
+				other = input_geom;
+			}
+
 			Envelope2D env_2D = new Envelope2D();
 			env.queryEnvelope2D(env_2D);
 			return Clipper.clip(other, env_2D, tolerance, 0);
-		}
+		} else IDs[23] = true;
 
 		if ((Geometry.getDimensionFromType(gtInput) == 0 && Geometry
 				.getDimensionFromType(m_geomIntersectorType) > 0)
 				|| (Geometry.getDimensionFromType(gtInput) > 0 && Geometry
 						.getDimensionFromType(m_geomIntersectorType) == 0)) {// multipoint
-																				// intersection
+			IDs[24] = true;																	// intersection
+
 			double tolerance1 = InternalUtils.calculateToleranceFromGeometry(
 					m_spatial_reference, input_geom, false);
-			if (gtInput == Geometry.GeometryType.MultiPoint)
+			if (gtInput == Geometry.GeometryType.MultiPoint) {
+				IDs[25] = true;
 				return TopologicalOperations.intersection(
 						(MultiPoint) input_geom, m_geomIntersector, tolerance1);
-			if (gtInput == Geometry.GeometryType.Point)
+			}else IDs[26] = true;
+
+			if (gtInput == Geometry.GeometryType.Point) {
+				IDs[27] = true;
 				return TopologicalOperations.intersection((Point) input_geom,
 						m_geomIntersector, tolerance1);
-			if (m_geomIntersectorType == Geometry.GeometryType.MultiPoint)
+			}else IDs[28] = true;
+
+			if (m_geomIntersectorType == Geometry.GeometryType.MultiPoint) {
+				IDs[29] = true;
 				return TopologicalOperations.intersection(
 						(MultiPoint) m_geomIntersector, input_geom, tolerance1);
-			if (m_geomIntersectorType == Geometry.GeometryType.Point)
+			}else IDs[30] = true;
+
+			if (m_geomIntersectorType == Geometry.GeometryType.Point) {
+				IDs[31] = true;
 				return TopologicalOperations.intersection(
 						(Point) m_geomIntersector, input_geom, tolerance1);
+			}
+
+			IDs[32] = true;
 			throw GeometryException.GeometryInternalError();
-		}
+		} else IDs[33] = true;
 
 		// Try Polyline vs Polygon
 		if ((m_dimensionMask == -1 || m_dimensionMask == (1 << 1))
 				&& (gtInput == Geometry.GeometryType.Polyline)
 				&& (m_geomIntersectorType == Geometry.GeometryType.Polygon)) {
+			IDs[34] = true;
 			return tryFastIntersectPolylinePolygon_((Polyline) (input_geom),
 					(Polygon) (m_geomIntersector));
-		}
+		} else IDs[35] = true;
 
 		// Try Polygon vs Polyline
 		if ((m_dimensionMask == -1 || m_dimensionMask == (1 << 1))
 				&& (gtInput == Geometry.GeometryType.Polygon)
 				&& (m_geomIntersectorType == Geometry.GeometryType.Polyline)) {
+			IDs[36] = true;
 			return tryFastIntersectPolylinePolygon_(
 					(Polyline) (m_geomIntersector), (Polygon) (input_geom));
-		}
+		} else IDs[37] = true;
 
+		IDs[38] = true;
 		return null;
 	}
 
