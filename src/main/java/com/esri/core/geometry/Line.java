@@ -26,6 +26,7 @@
 package com.esri.core.geometry;
 
 import com.esri.core.geometry.VertexDescription.Semantics;
+import com.esri.coverage.Coverage;
 
 import java.io.Serializable;
 
@@ -837,8 +838,8 @@ public final class Line extends Segment implements Serializable {
 	}
 
 	static int _intersectLineLine(Line line1, Line line2,
-			Point2D[] intersectionPoints, double[] param1, double[] param2,
-			double tolerance) {
+								  Point2D[] intersectionPoints, double[] param1, double[] param2,
+								  double tolerance) {
 		// _ASSERT(!param1 && !param2 || param1);
 		int counter = 0;
 		// Test the end points for exact coincidence.
@@ -848,141 +849,284 @@ public final class Line extends Segment implements Serializable {
 		double t22 = line2._intersection(line1.getEndXY(), tolerance, false);
 
 		if (!NumberUtils.isNaN(t11)) {
-			if (param1 != null)// if (param1)
+			// COVERAGE ID: 1
+			Coverage.incrementCoverage(1);
+			if (param1 != null){// if (param1)
+				// COVERAGE ID: 2
+				Coverage.incrementCoverage(2);
 				param1[counter] = t11;
-			if (param2 != null)// if (param2)
+			}else{
+				// COVERAGE ID: 3
+				Coverage.incrementCoverage(3);
+			}
+			if (param2 != null){// if (param2)
+				// COVERAGE ID: 4
+				Coverage.incrementCoverage(4);
 				param2[counter] = 0;
-
-			if (intersectionPoints != null)// if (intersectionPoints)
+			}else{
+				// COVERAGE ID: 5
+				Coverage.incrementCoverage(5);
+			}
+			if (intersectionPoints != null){// if (intersectionPoints)
+				// COVERAGE ID: 6
+				Coverage.incrementCoverage(6);
 				intersectionPoints[counter] = Point2D.construct(line2.m_xStart,
 						line2.m_yStart);
+			}else{
+				// COVERAGE ID: 7
+				Coverage.incrementCoverage(7);
+			}
 			counter++;
+		}else{
+			// COVERAGE ID: 8
+			Coverage.incrementCoverage(8);
 		}
 
 		if (!NumberUtils.isNaN(t12)) {
-			if (param1 != null)// if (param1)
+			// COVERAGE ID: 9
+			Coverage.incrementCoverage(9);
+			if (param1 != null){// if (param1)
+				// COVERAGE ID: 10
+				Coverage.incrementCoverage(10);
 				param1[counter] = t12;
-			if (param2 != null)// if (param2)
+			}else{
+				// COVERAGE ID: 11
+				Coverage.incrementCoverage(11);
+			}
+			if (param2 != null){// if (param2)
+				// COVERAGE ID: 12
+				Coverage.incrementCoverage(12);
 				param2[counter] = 1.0;
+			}else{
+				// COVERAGE ID: 13
+				Coverage.incrementCoverage(13);
+			}
 
-			if (intersectionPoints != null)// if (intersectionPoints)
+			if (intersectionPoints != null){// if (intersectionPoints)
+				// COVERAGE ID: 14
+				Coverage.incrementCoverage(14);
 				intersectionPoints[counter] = Point2D.construct(line2.m_xEnd,
 						line2.m_yEnd);
+			}else{
+				// COVERAGE ID: 15
+				Coverage.incrementCoverage(15);
+			}
 			counter++;
+		}else{
+			// COVERAGE ID: 16
+			Coverage.incrementCoverage(16);
 		}
 
 		if (counter != 2 && !NumberUtils.isNaN(t21)) {
+			// COVERAGE ID: 17
+			Coverage.incrementCoverage(17);
 			if (!(t11 == 0 && t21 == 0) && !(t12 == 0 && t21 == 1.0))// the "if"
-																		// makes
-																		// sure
-																		// this
-																		// has
-																		// not
-																		// been
-																		// already
-																		// calculated
+			// makes
+			// sure
+			// this
+			// has
+			// not
+			// been
+			// already
+			// calculated
 			{
-				if (param1 != null)// if (param1)
+				// COVERAGE ID: 18
+				Coverage.incrementCoverage(18);
+				if (param1 != null){// if (param1)
+					// COVERAGE ID: 19
+					Coverage.incrementCoverage(19);
 					param1[counter] = 0;
-				if (param2 != null)// if (param2)
+				}else{
+					// COVERAGE ID: 20
+					Coverage.incrementCoverage(20);
+				}
+				if (param2 != null){// if (param2)
+					// COVERAGE ID: 21
+					Coverage.incrementCoverage(21);
 					param2[counter] = t21;
+				}else{
+					// COVERAGE ID: 22
+					Coverage.incrementCoverage(22);
+				}
 
-				if (intersectionPoints != null)// if (intersectionPoints)
+				if (intersectionPoints != null){// if (intersectionPoints)
+					// COVERAGE ID: 23
+					Coverage.incrementCoverage(23);
 					intersectionPoints[counter] = Point2D.construct(
 							line1.m_xStart, line1.m_yStart);
+				}else{
+					// COVERAGE ID: 24
+					Coverage.incrementCoverage(24);
+				}
 				counter++;
+			}else{
+				// COVERAGE ID: 25
+				Coverage.incrementCoverage(25);
 			}
+		}else{
+			// COVERAGE ID: 26
+			Coverage.incrementCoverage(26);
 		}
 
 		if (counter != 2 && !NumberUtils.isNaN(t22)) {
+			// COVERAGE ID: 27
+			Coverage.incrementCoverage(27);
 			if (!(t11 == 1.0 && t22 == 0) && !(t12 == 1.0 && t22 == 1.0))// the
-																			// "if"
-																			// makes
-																			// sure
-																			// this
-																			// has
-																			// not
-																			// been
-																			// already
-																			// calculated
+			// "if"
+			// makes
+			// sure
+			// this
+			// has
+			// not
+			// been
+			// already
+			// calculated
 			{
-				if (param1 != null)// if (param1)
+				// COVERAGE ID: 28
+				Coverage.incrementCoverage(28);
+				if (param1 != null){// if (param1)
+					// COVERAGE ID: 29
+					Coverage.incrementCoverage(29);
 					param1[counter] = 1.0;
-				if (param2 != null)// if (param2)
+				}else{
+					// COVERAGE ID: 30
+					Coverage.incrementCoverage(30);
+				}
+				if (param2 != null){// if (param2)
+					// COVERAGE ID: 31
+					Coverage.incrementCoverage(31);
 					param2[counter] = t22;
+				}else{
+					// COVERAGE ID: 32
+					Coverage.incrementCoverage(32);
+				}
 
-				if (intersectionPoints != null)// if (intersectionPoints)
+				if (intersectionPoints != null){// if (intersectionPoints)
+					// COVERAGE ID: 33
+					Coverage.incrementCoverage(33);
 					intersectionPoints[counter] = Point2D.construct(
 							line2.m_xEnd, line2.m_yEnd);
+				}else{
+					// COVERAGE ID: 34
+					Coverage.incrementCoverage(34);
+				}
 				counter++;
+			}else{
+				// COVERAGE ID: 35
+				Coverage.incrementCoverage(35);
 			}
+		}else{
+			// COVERAGE ID: 36
+			Coverage.incrementCoverage(36);
 		}
 
 		if (counter > 0) {
+			// COVERAGE ID: 37
+			Coverage.incrementCoverage(37);
 			if (counter == 2 && param1 != null && param1[0] > param1[1]) {// make
-																			// sure
-																			// the
-																			// intersection
-																			// events
-																			// are
-																			// sorted
-																			// along
-																			// the
-																			// line1
-																			// can't
-																			// swap
-																			// doulbes
-																			// in
-																			// java
-																			// NumberUtils::Swap(param1[0],
-																			// param1[1]);
+				// sure
+				// the
+				// intersection
+				// events
+				// are
+				// sorted
+				// along
+				// the
+				// line1
+				// can't
+				// swap
+				// doulbes
+				// in
+				// java
+				// NumberUtils::Swap(param1[0],
+				// param1[1]);
+				// COVERAGE ID: 38
+				Coverage.incrementCoverage(38);
 				double zeroParam1 = param1[0];
 				param1[0] = param1[1];
 				param1[1] = zeroParam1;
 
 				if (param2 != null)// if (param2)
 				{
+					// COVERAGE ID: 39
+					Coverage.incrementCoverage(39);
 					double zeroParam2 = param2[0];
 					param2[0] = param2[1];
 					param2[1] = zeroParam2;// NumberUtils::Swap(ARRAYELEMENT(param2,
-											// 0), ARRAYELEMENT(param2, 1));
+					// 0), ARRAYELEMENT(param2, 1));
+				}else{
+					// COVERAGE ID: 40
+					Coverage.incrementCoverage(40);
 				}
 
 				if (intersectionPoints != null)// if (intersectionPoints)
 				{
+					// COVERAGE ID: 41
+					Coverage.incrementCoverage(41);
 					Point2D tmp = new Point2D(intersectionPoints[0].x,
 							intersectionPoints[0].y);
 					intersectionPoints[0] = intersectionPoints[1];
 					intersectionPoints[1] = tmp;
+				}else{
+					// COVERAGE ID: 42
+					Coverage.incrementCoverage(42);
 				}
+			}else{
+				// COVERAGE ID: 43
+				Coverage.incrementCoverage(43);
 			}
 
 			return counter;
+		}else{
+			// COVERAGE ID: 44
+			Coverage.incrementCoverage(44);
 		}
 
 		Point2D params = _intersectHelper1(line1, line2, tolerance);
-		if (NumberUtils.isNaN(params.x))
+		if (NumberUtils.isNaN(params.x)){
+			// COVERAGE ID: 45
+			Coverage.incrementCoverage(45);
 			return 0;
+		}else{
+			// COVERAGE ID: 46
+			Coverage.incrementCoverage(46);
+		}
 
 		if (intersectionPoints != null)// if (intersectionPoints)
 		{
+			// COVERAGE ID: 47
+			Coverage.incrementCoverage(47);
 			intersectionPoints[0] = line1.getCoord2D(params.x);
+		}else{
+			// COVERAGE ID: 48
+			Coverage.incrementCoverage(48);
 		}
 
 		if (param1 != null)// if (param1)
 		{
+			// COVERAGE ID: 49
+			Coverage.incrementCoverage(49);
 			param1[0] = params.x;
+		}else{
+			// COVERAGE ID: 50
+			Coverage.incrementCoverage(50);
 		}
 
 		if (param2 != null)// if (param2)
 		{
+			// COVERAGE ID: 51
+			Coverage.incrementCoverage(51);
 			param2[0] = params.y;
+		}else{
+			// COVERAGE ID: 52
+			Coverage.incrementCoverage(52);
 		}
 
 		return 1;
 	}
-	
-    @Override
+
+
+	@Override
     public void replaceNaNs(int semantics, double value) {
     	addAttribute(semantics);
     	if (isEmpty())
