@@ -572,4 +572,20 @@ public class TestJsonParser extends TestCase {
 		Assert.assertTrue(mg.getSpatialReference().getLatestID() == 3857);
 		Assert.assertTrue(mg.getSpatialReference().getOldID() == 102100);
 	}
+
+
+	@Test
+	public void testAppendQuote(){
+		JsonStringWriter stringWriter = new JsonStringWriter();
+		String init = "/";
+		String expected  = "{\"\\/\"}";
+		System.out.println("init: " + init);
+		System.out.println("expected: " + expected);
+
+		stringWriter.startObject();
+		stringWriter.testAppendQuote_InitjsonString(init);
+		stringWriter.testAppendQuote_("//");
+		stringWriter.endObject();
+		System.out.println(stringWriter.getJson().toString());
+	}
 }

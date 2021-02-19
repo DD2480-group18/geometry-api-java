@@ -239,7 +239,8 @@ final class JsonStringWriter extends JsonWriter {
 	private void next_(int action) {
 		switch (m_functionStack.getLast()) {
 		case State.accept:
-			accept_(action);
+			accept_(action
+			);
 			break;
 		case State.start:
 			start_(action);
@@ -332,6 +333,13 @@ final class JsonStringWriter extends JsonWriter {
 
 		m_functionStack.removeLast();
 		m_jsonString.append(':');
+	}
+
+	public void testAppendQuote_(String string){
+		appendQuote_(string);
+	}
+	public void testAppendQuote_InitjsonString(String str){
+		m_jsonString.append(str);
 	}
 
 	private void appendQuote_(String string) {
