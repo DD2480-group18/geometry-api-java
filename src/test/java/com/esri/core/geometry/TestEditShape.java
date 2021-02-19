@@ -416,4 +416,5 @@ public class TestEditShape extends TestCase {
 			assertTrue(a7 == 43);
 		}
 	}
+
 }

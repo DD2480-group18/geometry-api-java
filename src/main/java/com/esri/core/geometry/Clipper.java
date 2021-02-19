@@ -23,7 +23,13 @@
  */
 package com.esri.core.geometry;
 
+
+import dd2480.Coverage;
+import dd2480.Data;
+import org.apache.tools.ant.taskdefs.Cvs;
+
 class Clipper {
+
 	Envelope2D m_extent;
 	EditShape m_shape;
 	int m_geometry;
@@ -78,9 +84,19 @@ class Clipper {
 
 	MultiPath clipPolygon2_(Polygon polygon_in, double tolerance,
 			double densify_dist) {
+		Coverage.totalNumberOfRuns++;
 		// If extent is degenerate, return 0.
-		if (m_extent.getWidth() == 0 || m_extent.getHeight() == 0)
+		if (m_extent.getWidth() == 0 || m_extent.getHeight() == 0) { // Branch ID : 1
+			Data data = Coverage.branchCoverageMap.get(1);
+			data.trueRun++;
 			return (MultiPath) polygon_in.createInstance();
+		} else {
+			/**
+			 * To-be-added else
+			 * Branch ID: 2
+			 */
+			Coverage.incrementTrueRun(2);
+		}
 
 		Envelope2D orig_env2D = new Envelope2D();
 		polygon_in.queryLooseEnvelope(orig_env2D);
@@ -101,30 +117,51 @@ class Clipper {
 		delete_candidates.reserve(Math.min(100, polygon_in.getPointCount()));
 		// clip the polygon successively by each plane
 		boolean b_all_outside = false;
-		for (int iclip_plane = 0; !b_all_outside && iclip_plane < 4; iclip_plane++) {
+		for (int iclip_plane = 0; !b_all_outside && iclip_plane < 4; iclip_plane++) { // Branch ID: 3
+			if (!Coverage.branchCoverageMap.get(3).hasRun) {
+				Coverage.branchCoverageMap.get(3).hasRun = true;
+				Coverage.branchCoverageMap.get(3).trueRun++;
+			}
+
 			boolean b_intersects_plane = false;
 			boolean b_axis_x = (iclip_plane & 1) != 0;
 			double clip_value = 0;
 			switch (iclip_plane) {
-			case 0:
+				case 0: // Branch ID: 4
+					Coverage.incrementTrueRun(4);
+					Coverage.incrementFalseRun(5);
+					Coverage.incrementFalseRun(6);
+					Coverage.incrementFalseRun(7);
 				clip_value = m_extent.xmin;
 				b_intersects_plane = orig_env2D.xmin <= clip_value
 						&& orig_env2D.xmax >= clip_value;
 				assert (b_intersects_plane || clip_value < orig_env2D.xmin);
 				break;
-			case 1:
+				case 1: // Branch ID: 5
+					Coverage.incrementTrueRun(5);
+					Coverage.incrementFalseRun(4);
+					Coverage.incrementFalseRun(6);
+					Coverage.incrementFalseRun(7);
 				clip_value = m_extent.ymin;
 				b_intersects_plane = orig_env2D.ymin <= clip_value
 						&& orig_env2D.ymax >= clip_value;
 				assert (b_intersects_plane || clip_value < orig_env2D.ymin);
 				break;
-			case 2:
+				case 2: // Branch ID: 6
+					Coverage.incrementTrueRun(6);
+					Coverage.incrementFalseRun(5);
+					Coverage.incrementFalseRun(4);
+					Coverage.incrementFalseRun(7);
 				clip_value = m_extent.xmax;
 				b_intersects_plane = orig_env2D.xmin <= clip_value
 						&& orig_env2D.xmax >= clip_value;
 				assert (b_intersects_plane || clip_value > orig_env2D.xmax);
 				break;
-			case 3:
+				case 3: // Branch ID: 7
+					Coverage.incrementTrueRun(7);
+					Coverage.incrementFalseRun(5);
+					Coverage.incrementFalseRun(6);
+					Coverage.incrementFalseRun(4);
 				clip_value = m_extent.ymax;
 				b_intersects_plane = orig_env2D.ymin <= clip_value
 						&& orig_env2D.ymax >= clip_value;
@@ -132,39 +169,72 @@ class Clipper {
 				break;
 			}
 
-			if (!b_intersects_plane)
+			if (!b_intersects_plane){ // Branch ID: 8
+				Coverage.incrementTrueRun(8);
+				Coverage.incrementFalseRun(9);
 				continue;// Optimize for common case when only few sides of the
-							// clipper envelope intersect the geometry.
+				// clipper envelope intersect the geometry.
+			} else {
+				/**
+				 * To-be-added else clause. Branch ID: 9
+				 */
+				Coverage.incrementTrueRun(9);
+				Coverage.incrementFalseRun(8);
+			}
+
+
 
 			b_all_outside = true;
-			for (int path = m_shape.getFirstPath(m_geometry); path != -1;) {
+			for (int path = m_shape.getFirstPath(m_geometry); path != -1;) { // Branch ID: 10
+				if (!Coverage.branchCoverageMap.get(10).hasRun) {
+					Coverage.branchCoverageMap.get(10).hasRun = true;
+					Coverage.incrementTrueRun(10);
+				}
+
 				int inside = -1;
 				int firstinside = -1;
 				int first = m_shape.getFirstVertex(path);
 				int vertex = first;
 				do {
+
 					Segment segment = m_shape.getSegment(vertex);
-					if (segment == null) {
+					if (segment == null) { // Branch ID: 11
+						Coverage.incrementTrueRun(11);
+						Coverage.incrementFalseRun(12);
 						segment = line;
 						m_shape.getXY(vertex, pt_1);
 						segment.setStartXY(pt_1);
 						m_shape.getXY(m_shape.getNextVertex(vertex), pt_2);
 						segment.setEndXY(pt_2);
+					} else {
+						/**
+						 * Branch ID: 12
+						 * to-be-added else clause
+						 */
+						Coverage.incrementTrueRun(12);
+						Coverage.incrementFalseRun(11);
 					}
+
 					segment.queryEnvelope2D(seg_env);
 					int seg_plane_intersection_status = checkSegmentIntersection_(
 							seg_env, iclip_plane, clip_value);
 					int split_count = 0;
 					int next_vertex = -1;
 
-					if (seg_plane_intersection_status == -1) // intersects plane
+					if (seg_plane_intersection_status == -1) // intersects plane. Branch ID: 13
 					{
+						Coverage.incrementTrueRun(13);
+						Coverage.incrementFalseRun(37);
 						int count = segment.intersectionWithAxis2D(b_axis_x,
 								clip_value, result_ordinates, parameters);
-						if (count > 0) {
+						if (count > 0) { // Branch ID: 14
+							Coverage.incrementTrueRun(14);
+							Coverage.incrementFalseRun(15);
 							split_count = m_shape.splitSegment(vertex,
 									parameters, count);
-						} else {
+						} else { // Branch ID: 15
+							Coverage.incrementTrueRun(15);
+							Coverage.incrementFalseRun(14);
 							assert (count == 0);// might be -1 when the segment
 												// is almost parallel to the
 												// clip lane. Just to see this
@@ -181,45 +251,73 @@ class Clipper {
 
 						int split_vert = vertex;
 						int next_split_vert = m_shape.getNextVertex(split_vert);
-						for (int i = 0; i < split_count; i++) {
+						for (int i = 0; i < split_count; i++) { // Branch ID: 16
+							if (!Coverage.branchCoverageMap.get(16).hasRun) {
+								Coverage.branchCoverageMap.get(16).hasRun = true;
+								Coverage.incrementTrueRun(16);
+							}
+
 							m_shape.getXY(split_vert, pt_1);
 							m_shape.getXY(next_split_vert, pt_2);
 
 							Segment sub_seg = m_shape.getSegment(split_vert);
-							if (sub_seg == null) {
+							if (sub_seg == null) { // Branch ID: 17
+								Coverage.incrementTrueRun(17);
+								Coverage.incrementFalseRun(18);
 								sub_seg = line;
 								sub_seg.setStartXY(pt_1);
 								sub_seg.setEndXY(pt_2);
+							} else {
+								/**
+								 * To-be-added else
+								 * Branch ID: 18
+								 */
+								Coverage.incrementTrueRun(18);
+								Coverage.incrementFalseRun(17);
 							}
 
 							sub_seg.queryEnvelope2D(sub_seg_env);
 							int sub_segment_plane_intersection_status = checkSegmentIntersection_(
 									sub_seg_env, iclip_plane, clip_value);
-							if (sub_segment_plane_intersection_status == -1) {
+							if (sub_segment_plane_intersection_status == -1) { // Branch ID: 19
+								Coverage.incrementTrueRun(19);
+								Coverage.incrementFalseRun(28);
 								// subsegment is intertsecting the plane. We
 								// need to snap one of the endpoints to ensure
 								// no intersection.
 								// TODO: ensure this works for curves. For
 								// curves we have to adjust the curve shape.
-								if (!b_axis_x) {
+								if (!b_axis_x) { // Branch ID: 20
+									Coverage.incrementTrueRun(20);
+									Coverage.incrementFalseRun(23);
 									assert ((pt_1.x < clip_value && pt_2.x > clip_value) || (pt_1.x > clip_value && pt_2.x < clip_value));
 									double d_1 = Math.abs(pt_1.x - clip_value);
 									double d_2 = Math.abs(pt_2.x - clip_value);
-									if (d_1 < d_2) {
+									if (d_1 < d_2) { // Branch ID: 21
+										Coverage.incrementTrueRun(21);
+										Coverage.incrementFalseRun(22);
 										pt_1.x = clip_value;
 										m_shape.setXY(split_vert, pt_1);
-									} else {
+									} else { // Branch ID: 22
+										Coverage.incrementTrueRun(22);
+										Coverage.incrementFalseRun(21);
 										pt_2.x = clip_value;
 										m_shape.setXY(next_split_vert, pt_2);
 									}
-								} else {
+								} else { // Branch ID: 23
+									Coverage.incrementTrueRun(23);
+									Coverage.incrementFalseRun(20);
 									assert ((pt_1.y < clip_value && pt_2.y > clip_value) || (pt_1.y > clip_value && pt_2.y < clip_value));
 									double d_1 = Math.abs(pt_1.y - clip_value);
 									double d_2 = Math.abs(pt_2.y - clip_value);
-									if (d_1 < d_2) {
+									if (d_1 < d_2) { // Branch ID: 24
+										Coverage.incrementTrueRun(24);
+										Coverage.incrementFalseRun(25);
 										pt_1.y = clip_value;
 										m_shape.setXY(split_vert, pt_1);
-									} else {
+									} else { // Branch ID: 25
+										Coverage.incrementTrueRun(25);
+										Coverage.incrementFalseRun(24);
 										pt_2.y = clip_value;
 										m_shape.setXY(next_split_vert, pt_2);
 									}
@@ -228,29 +326,69 @@ class Clipper {
 								// after the endpoint has been adjusted, recheck
 								// the segment.
 								sub_seg = m_shape.getSegment(split_vert);
-								if (sub_seg == null) {
+								if (sub_seg == null) { // Branch ID: 26
+									Coverage.incrementTrueRun(26);
+									Coverage.incrementFalseRun(27);
 									sub_seg = line;
 									sub_seg.setStartXY(pt_1);
 									sub_seg.setEndXY(pt_2);
+								} else {
+									/**
+									 * To-be-added else clause
+									 * Branch ID: 27
+									 */
+									Coverage.incrementTrueRun(27);
+									Coverage.incrementFalseRun(26);
 								}
+
 								sub_seg.queryEnvelope2D(sub_seg_env);
 								sub_segment_plane_intersection_status = checkSegmentIntersection_(
 										sub_seg_env, iclip_plane, clip_value);
+							} else {
+								/**
+								 * To-be-added else clause
+								 * Branch ID: 28
+								 */
+								Coverage.incrementTrueRun(28);
+								Coverage.incrementFalseRun(19);
 							}
 
 							assert (sub_segment_plane_intersection_status != -1);
 
 							int old_inside = inside;
 							inside = sub_segment_plane_intersection_status;
-							if (firstinside == -1)
+							if (firstinside == -1) {// Branch ID: 29
+								Coverage.incrementTrueRun(29);
+								Coverage.incrementFalseRun(30);
 								firstinside = inside;
+							} else {
+								/**
+								 * To-be-added else clause
+								 * Branch ID: 30
+								 */
+								Coverage.incrementTrueRun(30);
+								Coverage.incrementFalseRun(29);
+							}
+
 
 							// add connections along the clipping plane line
-							if (old_inside == 0 && inside == 1) {
+							if (old_inside == 0 && inside == 1) { // Branch ID: 31
+								Coverage.incrementTrueRun(31);
+								Coverage.incrementFalseRun(32);
+								Coverage.incrementFalseRun(33);
+								Coverage.incrementFalseRun(34);
 								// going from outside to inside. Do nothing
-							} else if (old_inside == 1 && inside == 0) {
+							} else if (old_inside == 1 && inside == 0) { // Branch ID: 32
+								Coverage.incrementTrueRun(32);
+								Coverage.incrementFalseRun(31);
+								Coverage.incrementFalseRun(33);
+								Coverage.incrementFalseRun(34);
 								// going from inside to outside
-							} else if (old_inside == 0 && inside == 0) {
+							} else if (old_inside == 0 && inside == 0) { // Branch ID: 33
+								Coverage.incrementTrueRun(33);
+								Coverage.incrementFalseRun(31);
+								Coverage.incrementFalseRun(32);
+								Coverage.incrementFalseRun(34);
 								// staying outside
 								// remember the start point of the outside
 								// segment to be deleted.
@@ -258,76 +396,207 @@ class Clipper {
 																	// candidate
 																	// to be
 																	// deleted
+							} else {
+								/**
+								 * To-be-added else clause
+								 * Branch ID: 34
+								 */
+								Coverage.incrementTrueRun(34);
+								Coverage.incrementFalseRun(31);
+								Coverage.incrementFalseRun(32);
+								Coverage.incrementFalseRun(33);
 							}
 
-							if (inside == 1) {
+
+							if (inside == 1) { // Branch ID: 35
+								Coverage.incrementTrueRun(35);
+								Coverage.incrementFalseRun(36);
 								b_all_outside = false;
+							} else {
+								/**
+								 * To-be-added else clause
+								 * Branch ID: 36
+								 */
+								Coverage.incrementTrueRun(36);
+								Coverage.incrementFalseRun(35);
 							}
+
 
 							split_vert = next_split_vert;
 							next_vertex = split_vert;
 							next_split_vert = m_shape
 									.getNextVertex(next_split_vert);
 						}
+					} else {
+						/**
+						 * To-be-added else clause
+						 * Branch ID: 37
+						 */
+						Coverage.incrementTrueRun(37);
+						Coverage.incrementFalseRun(13);
 					}
 
-					if (split_count == 0) {
+					if (split_count == 0) { // Branch ID: 38
+						Coverage.incrementTrueRun(38);
+						Coverage.incrementFalseRun(47);
 						assert (seg_plane_intersection_status != -1);// cannot
 																		// happen.
 						int old_inside = inside;
 						inside = seg_plane_intersection_status;
-						if (firstinside == -1)
+						if (firstinside == -1) { // Branch ID: 39
+							Coverage.incrementTrueRun(39);
+							Coverage.incrementFalseRun(40);
 							firstinside = inside;
+						} else {
+							/**
+							 * To-be-added else clause
+							 * Branch ID: 40
+							 */
+							Coverage.incrementTrueRun(40);
+							Coverage.incrementFalseRun(39);
+						}
 
-						if (old_inside == 0 && inside == 1) {
+
+						if (old_inside == 0 && inside == 1) { // Branch ID: 41
+							Coverage.incrementTrueRun(41);
+							Coverage.incrementFalseRun(42);
+							Coverage.incrementFalseRun(43);
+							Coverage.incrementFalseRun(44);
 							// going from outside to inside.
-						} else if (old_inside == 1 && inside == 0) {
+						} else if (old_inside == 1 && inside == 0) { // Branch ID: 42
+							Coverage.incrementTrueRun(42);
+							Coverage.incrementFalseRun(43);
+							Coverage.incrementFalseRun(44);
+							Coverage.incrementFalseRun(41);
 							// going from inside to outside
-						} else if (old_inside == 0 && inside == 0) {
+						} else if (old_inside == 0 && inside == 0) { // Branch ID: 43
+							Coverage.incrementTrueRun(43);
+							Coverage.incrementFalseRun(41);
+							Coverage.incrementFalseRun(42);
+							Coverage.incrementFalseRun(44);
 							// remember the start point of the outside segment
 							// to be deleted.
 							delete_candidates.add(vertex); // is a candidate to
 															// be deleted
+						} else {
+							/**
+							 * To-be-added else clause
+							 * Branch ID: 44
+							 */
+							Coverage.incrementTrueRun(44);
+							Coverage.incrementFalseRun(41);
+							Coverage.incrementFalseRun(42);
+							Coverage.incrementFalseRun(43);
 						}
 
-						if (inside == 1) {
+						if (inside == 1) { // Branch ID: 45
+							Coverage.incrementTrueRun(45);
+							Coverage.incrementFalseRun(46);
 							b_all_outside = false;
+						} else {
+							/**
+							 * To-be-added else clause
+							 * Branch ID: 46
+							 */
+							Coverage.incrementTrueRun(46);
+							Coverage.incrementFalseRun(45);
 						}
 
 						next_vertex = m_shape.getNextVertex(vertex);
+					} else {
+						/**
+						 * To-be-added else clause
+						 * Branch ID: 47
+						 */
+						Coverage.incrementTrueRun(47);
+						Coverage.incrementFalseRun(38);
 					}
-					vertex = next_vertex;
-				} while (vertex != first);
 
-				if (firstinside == 0 && inside == 0) {// first vertex need to be
-														// deleted.
-					delete_candidates.add(first); // is a candidate to be
-													// deleted
+					vertex = next_vertex;
+//					Coverage.incrementTrueRun(48);
+					if (!Coverage.branchCoverageMap.get(48).hasRun) {
+						Coverage.branchCoverageMap.get(48).hasRun = true;
+						Coverage.incrementTrueRun(48);
+					}
+				} while (vertex != first); // Branch ID: 48
+
+				if (!Coverage.branchCoverageMap.get(48).hasRun) {
+					Coverage.branchCoverageMap.get(48).falseRun++;
 				}
 
-				for (int i = 0, n = delete_candidates.size(); i < n; i++) {
+				if (firstinside == 0 && inside == 0) {// first vertex need to be. Branch ID: 49
+														// deleted.
+					Coverage.incrementTrueRun(49);
+					Coverage.incrementFalseRun(50);
+					delete_candidates.add(first); // is a candidate to be
+													// deleted
+				} else {
+					Coverage.incrementTrueRun(50);
+					Coverage.incrementFalseRun(49);
+					/**
+					 * To-be-added else clause
+					 * Branch ID: 50
+					 */
+				}
+
+				for (int i = 0, n = delete_candidates.size(); i < n; i++) { // Branch ID: 51
+					if (!Coverage.branchCoverageMap.get(51).hasRun) {
+						Coverage.branchCoverageMap.get(51).hasRun = true;
+						Coverage.incrementTrueRun(51);
+					}
+
 					int delete_vert = delete_candidates.get(i);
 					m_shape.removeVertex(delete_vert, false);
 				}
+
 				delete_candidates.clear(false);
-				if (m_shape.getPathSize(path) < 3) {
+				if (m_shape.getPathSize(path) < 3) { // Branch ID: 52
+					Coverage.incrementTrueRun(52);
+					Coverage.incrementFalseRun(53);
 					path = m_shape.removePath(path);
-				} else {
+				} else { // Branch ID: 53
+					Coverage.incrementTrueRun(53);
+					Coverage.incrementFalseRun(52);
 					path = m_shape.getNextPath(path);
 				}
 			}
 		}
 
-		if (b_all_outside)
+		if (!Coverage.branchCoverageMap.get(3).hasRun) {
+			Coverage.branchCoverageMap.get(3).falseRun++;
+		}
+
+		if (b_all_outside) {// Branch ID: 54
+			Coverage.incrementTrueRun(54);
+			Coverage.incrementFalseRun(55);
 			return (MultiPath) polygon_in.createInstance();
+		} else {
+			/**
+			 * To-be-added else clause
+			 * Branch ID: 55
+			 */
+			Coverage.incrementTrueRun(55);
+			Coverage.incrementFalseRun(54);
+		}
 
 		// After the clipping, we could have produced unwanted segment overlaps
 		// along the clipping envelope boundary.
 		// Detect and resolve that case if possible.
 		resolveBoundaryOverlaps_();
-		if (densify_dist > 0)
+		if (densify_dist > 0) { // Branch ID: 56
+			Coverage.incrementTrueRun(56);
+			Coverage.incrementFalseRun(57);
 			densifyAlongClipExtent_(densify_dist);
+		} else {
+			/**
+			 * To-be-added else clause
+			 * Branch ID: 57
+			 */
+			Coverage.incrementTrueRun(57);
+			Coverage.incrementFalseRun(56);
+		}
 
+		Coverage.resetHasRun();
 		return (MultiPath) m_shape.getGeometry(m_geometry);
 	}
 

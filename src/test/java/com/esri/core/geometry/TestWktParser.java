@@ -25,6 +25,8 @@
 package com.esri.core.geometry;
 
 import static org.junit.Assert.*;
+
+import dd2480.Coverage;
 import junit.framework.TestCase;
 
 import org.junit.Test;
@@ -1115,4 +1117,9 @@ public class TestWktParser extends TestCase {
 		wktParser.nextToken();
 	}
 
+
+	static {
+		// Write the print outs here from the datastructure that we are gonna use.
+		Coverage.printTrueRuns();
+	}
 }
