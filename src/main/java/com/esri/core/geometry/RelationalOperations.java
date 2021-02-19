@@ -24,8 +24,12 @@
 package com.esri.core.geometry;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class RelationalOperations {
+
+	public static HashMap<Integer, Boolean> branchCov = new HashMap<Integer, Boolean>(100);
+
 	interface Relation {
 		static final int contains = 1;
 		static final int within = 2;
@@ -3816,9 +3820,11 @@ class RelationalOperations {
 		if (_multipathA.getSegmentCount() > _multipathB.getSegmentCount()) {
 			multipathA = _multipathB;
 			multipathB = _multipathA;
+			branchCov.put(1,true);
 		} else {
 			multipathA = _multipathA;
 			multipathB = _multipathB;
+			branchCov.put(2,true);
 		}
 
 		SegmentIteratorImpl segIterA = ((MultiPathImpl) multipathA._getImpl())
@@ -3851,6 +3857,9 @@ class RelationalOperations {
 
 		if (intersections != null) {
 			int_point = new Point2D();
+			branchCov.put(3,true);
+		} else {
+			branchCov.put(4,true);
 		}
 
 		QuadTreeImpl qtB = null;
@@ -3863,40 +3872,59 @@ class RelationalOperations {
 		if (accel != null) {
 			quadTreeB = accel.getQuadTree();
             quadTreePathsB = accel.getQuadTreeForPaths();
+			branchCov.put(5,true);
 			if (quadTreeB == null) {
 				qtB = InternalUtils.buildQuadTree(
 						(MultiPathImpl) multipathB._getImpl(), envInter);
 				quadTreeB = qtB;
+				branchCov.put(6,true);
+			} else {
+				branchCov.put(7,true);
 			}
 		} else {
 			qtB = InternalUtils.buildQuadTree(
 					(MultiPathImpl) multipathB._getImpl(), envInter);
 			quadTreeB = qtB;
+			branchCov.put(8,true);
 		}
 
 		QuadTreeImpl.QuadTreeIteratorImpl qtIterB = quadTreeB.getIterator();
 
         QuadTreeImpl.QuadTreeIteratorImpl qtIterPathsB = null;
-        if (quadTreePathsB != null)
+        if (quadTreePathsB != null){
             qtIterPathsB = quadTreePathsB.getIterator();
+			branchCov.put(9,true);
+		} else {
+			branchCov.put(10,true);
+		}
 
 		while (segIterA.nextPath()) {
+			branchCov.put(11,true);
 			overlapLength = 0.0;
 
 			while (segIterA.hasNextSegment()) {
+				branchCov.put(12,true);
 				Segment segmentA = segIterA.nextSegment();
 				segmentA.queryEnvelope2D(env_a);
 
 				if (!env_a.isIntersecting(envInter)) {
+					branchCov.put(13,true);
 					continue;
+				} else {
+					branchCov.put(14,true);
 				}
 
                 if (qtIterPathsB != null) {
                     qtIterPathsB.resetIterator(env_a, tolerance);
+					branchCov.put(15,true);
 
-                    if (qtIterPathsB.next() == -1)
+                    if (qtIterPathsB.next() == -1){
+						branchCov.put(16,true);
                         continue;
-                }
+					}
+                } else {
+					branchCov.put(17,true);
+				}
 
 				double lengthA = segmentA.calculateLength2D();
 
@@ -3904,6 +3932,7 @@ class RelationalOperations {
 
 				for (int elementHandleB = qtIterB.next(); elementHandleB != -1; elementHandleB = qtIterB
 						.next()) {
+					branchCov.put(18,true);
 					int vertex_b = quadTreeB.getElement(elementHandleB);
 					segIterB.resetToVertex(vertex_b);
 
@@ -3914,6 +3943,7 @@ class RelationalOperations {
 							scalarsB, tolerance);
 
 					if (result > 0) {
+						branchCov.put(19,true);
 						double scalar_a_0 = scalarsA[0];
 						double scalar_b_0 = scalarsB[0];
 						double scalar_a_1 = (result == 2 ? scalarsA[1]
@@ -3922,20 +3952,26 @@ class RelationalOperations {
 								: NumberUtils.TheNaN);
 
 						if (result == 2) {
+							branchCov.put(20,true);
 							if (lengthA * (scalar_a_1 - scalar_a_0) > tolerance) {
 								dim = 1;
+								branchCov.put(21,true);
 								return dim;
+							} else {
+								branchCov.put(22,true);
 							}
 
 							// Quick neighbor check
 							double length = lengthA * (scalar_a_1 - scalar_a_0);
 
 							if (segIterB.hasNextSegment()) {
+								branchCov.put(23,true);
 								segmentB = segIterB.nextSegment();
 								result = segmentA.intersect(segmentB, null,
 										scalarsA, null, tolerance);
 
 								if (result == 2) {
+									branchCov.put(24,true);
 									double nextScalarA0 = scalarsA[0];
 									double nextScalarA1 = scalarsA[1];
 
@@ -3944,21 +3980,30 @@ class RelationalOperations {
 
 									if (length + lengthNext > tolerance) {
 										dim = 1;
+										branchCov.put(25,true);
 										return dim;
+									} else {
+										branchCov.put(26,true);
 									}
+								} else {
+									branchCov.put(27,true);
 								}
 
 								segIterB.resetToVertex(vertex_b);
 								segIterB.nextSegment();
+							} else {
+								branchCov.put(28,true);
 							}
 
 							if (!segIterB.isFirstSegmentInPath()) {
+								branchCov.put(29,true);
 								segIterB.previousSegment();
 								segmentB = segIterB.previousSegment();
 								result = segmentA.intersect(segmentB, null,
 										scalarsA, null, tolerance);
 
 								if (result == 2) {
+									branchCov.put(30,true);
 									double nextScalarA0 = scalarsA[0];
 									double nextScalarA1 = scalarsA[1];
 
@@ -3966,22 +4011,31 @@ class RelationalOperations {
 											* (nextScalarA1 - nextScalarA0);
 
 									if (length + lengthPrevious > tolerance) {
+										branchCov.put(31,true);
 										dim = 1;
 										return dim;
+									} else {
+										branchCov.put(32,true);
 									}
+								} else {
+									branchCov.put(33,true);
 								}
 
 								segIterB.resetToVertex(vertex_b);
 								segIterB.nextSegment();
+							} else {
+								branchCov.put(34,true);
 							}
 
 							if (segIterA.hasNextSegment()) {
+								branchCov.put(35,true);
 								int vertex_a = segIterA.getStartPointIndex();
 								segmentA = segIterA.nextSegment();
 								result = segmentA.intersect(segmentB, null,
 										scalarsA, null, tolerance);
 
 								if (result == 2) {
+									branchCov.put(36,true);
 									double nextScalarA0 = scalarsA[0];
 									double nextScalarA1 = scalarsA[1];
 
@@ -3989,16 +4043,24 @@ class RelationalOperations {
 											* (nextScalarA1 - nextScalarA0);
 
 									if (length + lengthNext > tolerance) {
+										branchCov.put(37,true);
 										dim = 1;
 										return dim;
+									} else {
+										branchCov.put(38,true);
 									}
+								} else {
+									branchCov.put(39,true);
 								}
 
 								segIterA.resetToVertex(vertex_a);
 								segIterA.nextSegment();
+							} else {
+								branchCov.put(40,true);
 							}
 
 							if (!segIterA.isFirstSegmentInPath()) {
+								branchCov.put(41,true);
 								int vertex_a = segIterA.getStartPointIndex();
 								segIterA.previousSegment();
 								segmentA = segIterA.previousSegment();
@@ -4006,6 +4068,7 @@ class RelationalOperations {
 										scalarsA, null, tolerance);
 
 								if (result == 2) {
+									branchCov.put(42,true);
 									double nextScalarA0 = scalarsA[0];
 									double nextScalarA1 = scalarsA[1];
 
@@ -4014,12 +4077,19 @@ class RelationalOperations {
 
 									if (length + lengthPrevious > tolerance) {
 										dim = 1;
+										branchCov.put(43,true);
 										return dim;
+									} else {
+										branchCov.put(44,true);
 									}
+								} else {
+									branchCov.put(45,true);
 								}
 
 								segIterA.resetToVertex(vertex_a);
 								segIterA.nextSegment();
+							} else {
+								branchCov.put(46,true);
 							}
 
 							int ivertex_a = segIterA.getStartPointIndex();
@@ -4032,6 +4102,8 @@ class RelationalOperations {
 									ipath_b, scalar_b_0, scalar_b_1);
 							relOps.m_overlap_events.add(overlapEvent);
 							eventIndices.add(eventIndices.size());
+						} else {
+							branchCov.put(47,true);
 						}
 
 						dim = 0;
@@ -4040,11 +4112,15 @@ class RelationalOperations {
 							segmentA.getCoord2D(scalar_a_0, int_point);
 							intersections.add(int_point.x);
 							intersections.add(int_point.y);
+							branchCov.put(48,true);
 						}
+					} else {
+						branchCov.put(49,true);
 					}
 				}
 
 				if (ievent < relOps.m_overlap_events.size()) {
+					branchCov.put(50,true);
 					eventIndices.Sort(ievent, eventIndices.size(),
 							overlapComparer);
 
@@ -4053,12 +4129,16 @@ class RelationalOperations {
 							.get(ievent)).m_ipath_a;
 
 					for (int i = ievent; i < relOps.m_overlap_events.size(); i++) {
+						branchCov.put(51,true);
 						overlapEvent = relOps.m_overlap_events.get(eventIndices
 								.get(i));
 
 						if (overlapEvent.m_scalar_a_0 < lastScalar
 								&& overlapEvent.m_scalar_a_1 < lastScalar) {
+							branchCov.put(52,true);
 							continue;
+						} else {
+							branchCov.put(53,true);
 						}
 
 						if (lengthA * (overlapEvent.m_scalar_a_0 - lastScalar) > tolerance) {
@@ -4066,38 +4146,61 @@ class RelationalOperations {
 									* (overlapEvent.m_scalar_a_1 - overlapEvent.m_scalar_a_0); // reset
 							lastScalar = overlapEvent.m_scalar_a_1;
 							lastPath = overlapEvent.m_ipath_a;
+							branchCov.put(54,true);
 						} else {
+							branchCov.put(55,true);
 							if (overlapEvent.m_ipath_a != lastPath) {
+								branchCov.put(56,true);
 								overlapLength = lengthA
 										* (overlapEvent.m_scalar_a_1 - overlapEvent.m_scalar_a_0); // reset
 								lastPath = overlapEvent.m_ipath_a;
 							} else {
+								branchCov.put(57,true);
 								overlapLength += lengthA
 										* (overlapEvent.m_scalar_a_1 - overlapEvent.m_scalar_a_0); // accumulate
 							}
 							if (overlapLength > tolerance) {
+								branchCov.put(58,true);
 								dim = 1;
 								return dim;
+							} else {
+								branchCov.put(59,true);
 							}
 
 							lastScalar = overlapEvent.m_scalar_a_1;
 
 							if (lastScalar == 1.0) {
+								branchCov.put(60,true);
 								break;
+							} else {
+								branchCov.put(61,true);
 							}
 						}
 					}
 
 					if (lengthA * (1.0 - lastScalar) > tolerance) {
+						branchCov.put(62,true);
 						overlapLength = 0.0; // reset
+					} else {
+						branchCov.put(63,true);
 					}
 					ievent = 0;
 					eventIndices.resize(0);
 					relOps.m_overlap_events.clear();
+				} else {
+					branchCov.put(64,true);
 				}
 			}
 		}
-
+		System.out.println("----------------------------------------------------");
+		int sum = 0;
+		for (Object obj: branchCov.keySet()) {
+			System.out.print(obj + " : ");
+			System.out.println(branchCov.get(obj));
+			sum ++;
+		}
+		System.out.println("Number of branches covered: " + sum);
+		System.out.println("----------------------------------------------------");
 		return dim;
 	}
 
