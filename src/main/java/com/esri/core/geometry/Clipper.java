@@ -87,8 +87,8 @@ class Clipper {
 		Coverage.totalNumberOfRuns++;
 		// If extent is degenerate, return 0.
 		if (m_extent.getWidth() == 0 || m_extent.getHeight() == 0) { // Branch ID : 1
-			Data data = Coverage.branchCoverageMap.get(1);
-			data.trueRun++;
+			Coverage.incrementTrueRun(1);
+			Coverage.incrementFalseRun(2);
 			return (MultiPath) polygon_in.createInstance();
 		} else {
 			/**
@@ -96,6 +96,7 @@ class Clipper {
 			 * Branch ID: 2
 			 */
 			Coverage.incrementTrueRun(2);
+			Coverage.incrementFalseRun(1);
 		}
 
 		Envelope2D orig_env2D = new Envelope2D();

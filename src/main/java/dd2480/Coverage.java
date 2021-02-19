@@ -13,17 +13,25 @@ public class Coverage {
     static public HashMap<Integer, Data> branchCoverageMap = new HashMap<>();
     static public int totalNumberOfRuns = 0;
     static {
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 58; i++) {
             branchCoverageMap.put(i, new Data());
         }
     }
 
     public static void incrementTrueRun(int branchID) {
-        branchCoverageMap.get(branchID).trueRun++;
+        if (!branchCoverageMap.containsKey(branchID)) {
+            branchCoverageMap.put(branchID, new Data(1, true));
+        } else {
+            branchCoverageMap.get(branchID).trueRun++;
+        }
     }
 
     public static void incrementFalseRun(int branchID) {
-        branchCoverageMap.get(branchID).falseRun++;
+        if (!branchCoverageMap.containsKey(branchID)) {
+            branchCoverageMap.put(branchID, new Data(1, false));
+        } else {
+            branchCoverageMap.get(branchID).falseRun++;
+        }
     }
 
     public static void resetHasRun() {
@@ -41,14 +49,31 @@ public class Coverage {
     }
 
     public static void printTrueRuns() {
-//        calculateFalseRuns();
-        System.out.println("Total number of runs: " + totalNumberOfRuns);
+        double ratio = calculateRatio();
+
+        System.out.println("Total number of function calls: " + totalNumberOfRuns);
+        System.out.printf("Ratio: %.2f %%", ratio);
+        System.out.println();
+        System.out.println("Index    True Runs    False runs");
         for ( Map.Entry<Integer, Data> entry : branchCoverageMap.entrySet() ) {
             Integer index = entry.getKey();
             Data data = entry.getValue();
-
-            System.out.println("Index : " + index + " True runs: : " + data.trueRun + " False runs: " + data.falseRun);
+            if (index == 0 )
+                continue;
+            System.out.println(index + "         " + data.trueRun + "           " + data.falseRun);
         }
+    }
+
+    public static double calculateRatio() {
+        double numberOfBranches = 56; // Index 1 - 57 (Inclusive)
+        double takenBranch = 0;
+        for ( Map.Entry<Integer, Data> entry : branchCoverageMap.entrySet() ) {
+            Data data = entry.getValue();
+            if (data.trueRun != 0) {
+                takenBranch++;
+            }
+        }
+        return 100 * (takenBranch / numberOfBranches);
     }
 }
 
