@@ -29,8 +29,11 @@ import com.esri.core.geometry.OperatorCutLocal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 class Cutter {
+	public static HashMap<Integer,Integer> map = new HashMap<Integer, Integer>();
+
 	static class CompareVertices {
 		int m_orderIndex;
 		EditShape m_editShape;
@@ -1297,12 +1300,18 @@ class Cutter {
 		int ivertexCutterNext = -1;
 		int countNext = -1;
 
+		Integer i;
 		if (!bConsiderTouch && icutEvent < cutEvents.size() - 1) {
+			i = map.get(1);
+			map.put(1, i == null ? 1 : i+1);
 			CutEvent cutEvent = cutEvents.get(icutEvent + 1);
 			ivertexCutteeNext = cutEvent.m_ivertexCuttee;
 			ipartCutterNext = cutEvent.m_ipartCutter;
 			ivertexCutterNext = cutEvent.m_ivertexCutter;
 			countNext = cutEvent.m_count;
+		} else {
+			i = map.get(2);
+			map.put(2, i == null ? 1 : i+1);
 		}
 
 		int ivertexCutteePrev = -1;
@@ -1311,17 +1320,24 @@ class Cutter {
 		int countPrev = -1;
 
 		if (icutEvent > 0) {
+			i = map.get(4);
+			map.put(4, i == null ? 1 : i+1);
 			CutEvent cutEvent = cutEvents.get(icutEvent - 1);
 			ivertexCutteePrev = cutEvent.m_ivertexCuttee;
 			ipartCutterPrev = cutEvent.m_ipartCutter;
 			ivertexCutterPrev = cutEvent.m_ivertexCutter;
 			countPrev = cutEvent.m_count;
+		} else {
+			i = map.get(5);
+			map.put(5, i == null ? 1 : i+1);
 		}
 
 		int ivertexCutteePlus = shape.getNextVertex(ivertexCuttee);
 		int ivertexCutterMinus = shape.getPrevVertex(ivertexCutter);
 
 		if (!bConsiderTouch) {
+			i = map.get(6);
+			map.put(6, i == null ? 1 : i+1);
 			if ((icutEvent > 0 && ivertexCutteePrev == ivertexCuttee
 					&& ipartCutterPrev == ipartCutter
 					&& ivertexCutterPrev == ivertexCutterMinus && countPrev == 2)
@@ -1329,10 +1345,17 @@ class Cutter {
 							&& ivertexCutteeNext == ivertexCutteePlus
 							&& ipartCutterNext == ipartCutter
 							&& ivertexCutterNext == ivertexCutterMinus && countNext == 2)) {
+				i = map.get(7);
+				map.put(7, i == null ? 1 : i+1);
 				segmentCutter = shape.getSegment(ivertexCutter);
 				if (segmentCutter == null) {
+					i = map.get(8);
+					map.put(8, i == null ? 1 : i+1);
 					shape.queryLineConnector(ivertexCutter, lineCutter);
 					segmentCutter = lineCutter;
+				} else {
+					i = map.get(9);
+					map.put(9, i == null ? 1 : i+1);
 				}
 
 				tangent1.setCoords(segmentCutter._getTangent(0.0));
@@ -1341,18 +1364,31 @@ class Cutter {
 				tangent0.normalize();
 
 				return false;
+			} else {
+				i = map.get(10);
+				map.put(10, i == null ? 1 : i+1);
 			}
 
 			return true;
+		} else {
+			i = map.get(11);
+			map.put(11, i == null ? 1 : i+1);
 		}
 
 		if (icutEvent == 0 || ivertexCutteePrev != ivertexCuttee
 				|| ipartCutterPrev != ipartCutter
 				|| ivertexCutterPrev != ivertexCutterMinus || countPrev == 2) {
+			i = map.get(12);
+			map.put(12, i == null ? 1 : i+1);
 			segmentCutter = shape.getSegment(ivertexCutter);
 			if (segmentCutter == null) {
+				i = map.get(13);
+				map.put(13, i == null ? 1 : i+1);
 				shape.queryLineConnector(ivertexCutter, lineCutter);
 				segmentCutter = lineCutter;
+			} else {
+				i = map.get(14);
+				map.put(14, i == null ? 1 : i+1);
 			}
 
 			tangent1.setCoords(segmentCutter._getTangent(0.0));
@@ -1361,6 +1397,9 @@ class Cutter {
 			tangent0.normalize();
 
 			return false;
+		} else {
+			i = map.get(15);
+			map.put(15, i == null ? 1 : i+1);
 		}
 
 		// Already processed the event
