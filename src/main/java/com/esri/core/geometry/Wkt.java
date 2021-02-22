@@ -22,6 +22,16 @@
  email: contracts@esri.com
  */
 
+/**
+ * document requirements:
+ * This program extracts a value from a well known text(Wkt) by searching for keywords in the text
+ * as I have not found any documentation on how the Wkt is supposed to look, we can only derive parts of it from the code
+ * There is a keyword in the Wkt that will either be PROJCS or GEOGCS
+ * After that, if the keyword is GEOGCS, there will be the keyword SPHEROID
+ * Then there will be the keyword UNIT followed by keywords/values separated by commas and ended by an end bracket
+ * after the end bracket the next value is what we are looking for
+ */
+
 package com.esri.core.geometry;
 
 final class Wkt {
