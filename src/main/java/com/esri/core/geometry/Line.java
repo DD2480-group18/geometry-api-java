@@ -840,6 +840,26 @@ public final class Line extends Segment implements Serializable {
 	static int _intersectLineLine(Line line1, Line line2,
 								  Point2D[] intersectionPoints, double[] param1, double[] param2,
 								  double tolerance) {
+		/*
+		 * PRE-CONDITIONS:
+		 * line1: An instantiated Line object with at least two points.
+		 * line2: An instantiated Line object with at least two points.
+		 * intersectionPoints: null, or a Point2D array of size equal to the number of intersection points
+		 * param1: null, or a double[] array of size equal to the number of intersection points
+		 * param2: null, or a double[] array of size equal to the number of intersection points
+		 * tolerance: A double to control the maximum distance between intersection points
+		 */
+		/*
+		 * POST-CONDITIONS:
+		 * line1, line2, tolerance: The same as before.
+		 * intersectionPoints, param1, param2: if originally null, still null - otherwise:
+		 * 	intersectionPoints: a Point2D array where each intersection
+		 * 		point between the lines have been stored in the array
+		 * 	param1: for each intersection point between the lines - a double element 'd' that describes how close
+		 * 		the intersection point is to the end of line1. 1-d describes how close it is to the start of line1.
+		 * 	param2: for each intersection point between the lines - a double element 'd' that describes how close
+		 * 		the intersection point is to the end of line2. 1-d describes how close it is to the start of line2.
+		 */
 		// _ASSERT(!param1 && !param2 || param1);
 		int counter = 0;
 		// Test the end points for exact coincidence.
