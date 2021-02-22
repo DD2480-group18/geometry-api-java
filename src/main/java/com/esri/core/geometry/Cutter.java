@@ -1322,28 +1322,26 @@ class Cutter {
 		int ivertexCutterMinus = shape.getPrevVertex(ivertexCutter);
 
 		if (!bConsiderTouch) {
-			if ((icutEvent > 0 && ivertexCutteePrev == ivertexCuttee
-					&& ipartCutterPrev == ipartCutter
-					&& ivertexCutterPrev == ivertexCutterMinus && countPrev == 2)
-					|| (icutEvent < cutEvents.size() - 1
-							&& ivertexCutteeNext == ivertexCutteePlus
-							&& ipartCutterNext == ipartCutter
-							&& ivertexCutterNext == ivertexCutterMinus && countNext == 2)) {
-				segmentCutter = shape.getSegment(ivertexCutter);
-				if (segmentCutter == null) {
-					shape.queryLineConnector(ivertexCutter, lineCutter);
-					segmentCutter = lineCutter;
-				}
-
-				tangent1.setCoords(segmentCutter._getTangent(0.0));
-				tangent0.negate(tangent1);
-				tangent1.normalize();
-				tangent0.normalize();
-
-				return false;
-			}
-
-			return true;
+			return _startTangentsConsiderTouch(
+					icutEvent,
+					ivertexCutteePrev,
+					ivertexCuttee,
+					ipartCutterPrev,
+					ipartCutter,
+					ivertexCutter,
+					ivertexCutterPrev,
+					ivertexCutterMinus,
+					countPrev,
+					cutEvents.size(),
+					ivertexCutteeNext,
+					ivertexCutteePlus,
+					ipartCutterNext,
+					ivertexCutterNext,
+					countNext,
+					lineCutter,
+					shape,
+					tangent1,
+					tangent0);
 		}
 
 		if (icutEvent == 0 || ivertexCutteePrev != ivertexCuttee
@@ -1366,6 +1364,33 @@ class Cutter {
 		// Already processed the event
 
 		return true;
+	}
+
+	private static boolean _startTangentsConsiderTouch(int icutEvent, int ivertexCutteePrev, int ivertexCuttee, int ipartCutterPrev, int ipartCutter, int ivertexCutter, int ivertexCutterPrev, int ivertexCutterMinus, int countPrev, int size, int ivertexCutteeNext, int ivertexCutteePlus, int ipartCutterNext, int ivertexCutterNext, int countNext, Line lineCutter, EditShape shape, Point2D tangent1, Point2D tangent0) {
+		Segment segmentCutter;
+		if ((icutEvent > 0 && ivertexCutteePrev == ivertexCuttee
+				&& ipartCutterPrev == ipartCutter
+				&& ivertexCutterPrev == ivertexCutterMinus && countPrev == 2)
+				|| (icutEvent < size - 1
+						&& ivertexCutteeNext == ivertexCutteePlus
+						&& ipartCutterNext == ipartCutter
+						&& ivertexCutterNext == ivertexCutterMinus && countNext == 2)) {
+			segmentCutter = shape.getSegment(ivertexCutter);
+			if (segmentCutter == null) {
+				shape.queryLineConnector(ivertexCutter, lineCutter);
+				segmentCutter = lineCutter;
+			}
+
+			tangent1.setCoords(segmentCutter._getTangent(0.0));
+			tangent0.negate(tangent1);
+			tangent1.normalize();
+			tangent0.normalize();
+
+			return false;
+		}
+
+		return true;
+
 	}
 
 	static boolean _cutteeTangents(EditShape shape,
