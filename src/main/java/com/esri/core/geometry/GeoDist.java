@@ -27,6 +27,8 @@ package com.esri.core.geometry;
 import com.esri.core.geometry.PeDouble;
 
 final class GeoDist {
+	public static boolean[] flags = new boolean[84];
+
 	private static final double PE_PI = 3.14159265358979323846264;
 	private static final double PE_PI2 = 1.57079632679489661923132;
 	private static final double PE_2PI = 6.283185307179586476925287;
@@ -139,8 +141,9 @@ final class GeoDist {
 
 		/* Are there any values to calculate? */
 		if (p_dist == null && p_az12 == null && p_az21 == null) {
+			flags[0] = true;
 			return;
-		}
+		} else flags[1] = true;
 
 		/* Normalize point 1 and 2 */
 		lam.val = lam1;
@@ -158,45 +161,76 @@ final class GeoDist {
 		dlam = lam_delta(lam2 - lam1); /* longitude difference [-Pi, Pi] */
 
 		if (PE_EQ(phi1, phi2) && (PE_ZERO(dlam) || PE_EQ(PE_ABS(phi1), PE_PI2))) {
+			flags[2] = true;
 			/* Check that the points are not the same */
-			if (p_dist != null)
+			if (p_dist != null) {
+				flags[3] = true;
 				p_dist.val = 0.0;
-			if (p_az12 != null)
+			} else flags[4] = true;
+			if (p_az12 != null){
+				flags[5] = true;
 				p_az12.val = 0.0;
-			if (p_az21 != null)
+			} else flags[6] = true;
+			if (p_az21 != null) {
+				flags[7] = true;
 				p_az21.val = 0.0;
-
+			} else flags[8] = true;
 			return;
 		} else if (PE_EQ(phi1, -phi2)) {
+			flags[9] = true;
 			/* Check if they are perfectly antipodal */
 			if (PE_EQ(PE_ABS(phi1), PE_PI2)) {
+				flags[10] = true;
 				/* Check if they are at opposite poles */
-				if (p_dist != null)
+				if (p_dist != null) {
+					flags[11] = true;
 					p_dist.val = 2.0 * q90(a, e2);
-
-				if (p_az12 != null)
-					p_az12.val = phi1 > 0.0 ? lam_delta(PE_PI - lam_delta(lam2))
-							: lam_delta(lam2);
-
-				if (p_az21 != null)
-					p_az21.val = phi1 > 0.0 ? lam_delta(lam2) : lam_delta(PE_PI
-							- lam_delta(lam2));
-
+				} else flags[12] = true;
+				if (p_az12 != null) {
+					flags[13] = true;
+					if (phi1 > 0.0) {
+						flags[14] = true;
+						p_az12.val = lam_delta(PE_PI - lam_delta(lam2));
+					}
+					else {
+						p_az12.val = lam_delta(lam2);
+						flags[15] = true;
+					}
+				} else flags[16] = true;
+				if (p_az21 != null) {
+					if (phi1 > 0.0){
+						flags[17] = true;
+						p_az21.val = lam_delta(lam2);
+					}
+					else {
+						flags[18] = true;
+						p_az21.val = lam_delta(PE_PI
+								- lam_delta(lam2));
+					}
+				}else flags[19] = true;
 				return;
 			} else if (PE_EQ(PE_ABS(dlam), PE_PI)) {
+				flags[20] = true;
 				/* Other antipodal */
-				if (p_dist != null)
+				if (p_dist != null) {
+					flags[21] = true;
 					p_dist.val = 2.0 * q90(a, e2);
-				if (p_az12 != null)
+				} else flags[22] = true;
+				if (p_az12 != null) {
+					flags[23] = true;
 					p_az12.val = 0.0;
-				if (p_az21 != null)
+				} else flags[24] = true;
+				if (p_az21 != null) {
+					flags[25] = true;
 					p_az21.val = 0.0;
+				} else flags[26] = true;
 				return;
-			}
-		}
+			} else flags[27] = true;
+		} else flags[28] = true;
 
 		if (PE_ZERO(e2)) /* Sphere */
 		{
+			flags[29] = true;
 			double cos_phi1, cos_phi2;
 			double sin_phi1, sin_phi2;
 
@@ -206,36 +240,57 @@ final class GeoDist {
 			sin_phi2 = Math.sin(phi2);
 
 			if (p_dist != null) {
+				flags[30] = true;
 				tem1 = Math.sin((phi2 - phi1) / 2.0);
 				tem2 = Math.sin(dlam / 2.0);
 				sigma = 2.0 * Math.asin(Math.sqrt(tem1 * tem1 + cos_phi1
 						* cos_phi2 * tem2 * tem2));
 				p_dist.val = sigma * a;
-			}
+			} else flags[31] = true;
 
 			if (p_az12 != null) {
+				flags[32] = true;
 				if (PE_EQ(PE_ABS(phi1), PE_PI2)) /* Origin at N or S Pole */
 				{
-					p_az12.val = phi1 < 0.0 ? lam2 : lam_delta(PE_PI - lam2);
+					flags[33] = true;
+					if (phi1 < 0.0) {
+						flags[34] = true;
+						p_az12.val = lam2;
+					}
+					else {
+						flags[35] = true;
+						p_az12.val = lam_delta(PE_PI - lam2);
+					}
 				} else {
+					flags[36] = true;
 					p_az12.val = Math.atan2(cos_phi2 * Math.sin(dlam), cos_phi1
 							* sin_phi2 - sin_phi1 * cos_phi2 * Math.cos(dlam));
 				}
-			}
+			} else flags[37] = true;
 
 			if (p_az21 != null) {
+				flags[38] = true;
 				if (PE_EQ(PE_ABS(phi2), PE_PI2)) /* Destination at N or S Pole */
 				{
-					p_az21.val = phi2 < 0.0 ? lam1 : lam_delta(PE_PI - lam1);
+					flags[39] = true;
+					if (phi2 < 0.0) {
+						flags[40] = true;
+						p_az21.val = lam1;
+					}
+					else {
+						flags[41] = true;
+						p_az21.val = lam_delta(PE_PI - lam1);
+					}
 				} else {
+					flags[42] = true;
 					p_az21.val = Math.atan2(cos_phi1 * Math.sin(dlam), sin_phi2
 							* cos_phi1 * Math.cos(dlam) - cos_phi2 * sin_phi1);
 					p_az21.val = lam_delta(p_az21.val + PE_PI);
 				}
-			}
+			} else flags[43] = true;
 
 			return;
-		}
+		} else flags[44] = true;
 
 		f = 1.0 - Math.sqrt(1.0 - e2);
 		boa = 1.0 - f;
@@ -258,9 +313,11 @@ final class GeoDist {
 
 		q_continue_looping = true;
 		while (q_continue_looping && it < 100) {
+			flags[45] = true;
 			it = it + 1;
 
 			if (kind == 1) {
+				flags[46] = true;
 				sin_lam_sph = Math.sin(lam_sph);
 
 				/*
@@ -281,9 +338,11 @@ final class GeoDist {
 
 				if (PE_ABS(sin_sigma) < eps) /* avoid division by 0 */
 				{
+					flags[47] = true;
 					sin_azeq = cos_eta1 * cos_eta2 * sin_lam_sph
 							/ PE_SGN(eps, sin_sigma);
 				} else {
+					flags[48] = true;
 					sin_azeq = cos_eta1 * cos_eta2 * sin_lam_sph / sin_sigma;
 					/* v17 (Rapp 1.90) */
 				}
@@ -292,9 +351,11 @@ final class GeoDist {
 
 				if (PE_ABS(cos2_azeq) < eps) /* avoid division by 0 */
 				{
+					flags[49] = true;
 					costm = cos_sigma - 2.0
 							* (sin_eta1 * sin_eta2 / PE_SGN(eps, cos2_azeq));
 				} else {
+					flags[50] = true;
 					costm = cos_sigma - 2.0 * (sin_eta1 * sin_eta2 / cos2_azeq);
 					/* v18 (Rapp 1.91) */
 				}
@@ -306,7 +367,7 @@ final class GeoDist {
 																				 * 1.83
 																				 * )
 																				 */
-			}
+			} else flags[51] = true;
 
 			/* entry point of the antipodal loop (kind = 2) */
 			d = (1.0 - c)
@@ -316,18 +377,22 @@ final class GeoDist {
 			/* v11 (Rapp 1.84) */
 
 			if (kind == 1) {
+				flags[52] = true;
 				lam_sph = dlam + d * sin_azeq;
 				if (PE_ABS(lam_sph - test) < tol) {
+					flags[53] = true;
 					q_continue_looping = false;
 					continue;
-				}
+				} else flags[54] = true;
 
 				if (PE_ABS(lam_sph) > PE_PI) {
+					flags[55] = true;
 					kind = 2;
 					lam_sph = PE_PI;
 					if (dlam < 0.0) {
+						flags[56] = true;
 						lam_sph = -lam_sph;
-					}
+					} else flags[57] = true;
 					sin_azeq = 0.0;
 					cos2_azeq = 1.0;
 					test = 2.0;
@@ -342,37 +407,43 @@ final class GeoDist {
 							/ 16.0; /* v10 (Rapp 1.83) */
 
 					if (PE_ABS(sin_azeq - prev) < tol) {
+						flags[58] = true;
 						q_continue_looping = false;
 						continue;
-					}
+					} else flags[59] = true;
 					if (PE_ABS(cos2_azeq) < eps) /* avoid division by 0 */
 					{
+						flags[60] = true;
 						costm = cos_sigma
 								- 2.0
 								* (sin_eta1 * sin_eta2 / PE_SGN(eps, cos2_azeq));
 					} else {
+						flags[61] = true;
 						costm = cos_sigma - 2.0
 								* (sin_eta1 * sin_eta2 / cos2_azeq);
 						/* v18 (Rapp 1.91) */
 					}
 					costm2 = costm * costm;
 					continue;
-				}
+				} else flags[62] = true;
 
 				if (((lam_sph - test) * (test - prev)) < 0.0 && it > 5) {
 					/* refined converge */
+					flags[63] = true;
 					lam_sph = (2.0 * lam_sph + 3.0 * test + prev) / 6.0;
-				}
+				} else flags[64] = true;
 				prev = test;
 				test = lam_sph;
 				continue;
 			} else /* kind == 2 */
 			{
+				flags[65] = true;
 				sin_azeq = (lam_sph - dlam) / d;
 				if (((sin_azeq - test) * (test - prev)) < 0.0 && it > 5) {
 					/* refined converge */
+					flags[66] = true;
 					sin_azeq = (2.0 * sin_azeq + 3.0 * test + prev) / 6.0;
-				}
+				} else flags[67] = true;
 				prev = test;
 				test = sin_azeq;
 				cos2_azeq = 1.0 - sin_azeq * sin_azeq;
@@ -394,14 +465,17 @@ final class GeoDist {
 																				 * )
 																				 */
 				if (PE_ABS(sin_azeq - prev) < tol) {
+					flags[68] = true;
 					q_continue_looping = false;
 					continue;
-				}
+				} else flags[69] = true;
 				if (PE_ABS(cos2_azeq) < eps) /* avoid division by 0 */
 				{
+					flags[70] = true;
 					costm = cos_sigma - 2.0
 							* (sin_eta1 * sin_eta2 / PE_SGN(eps, cos2_azeq));
 				} else {
+					flags[71] = true;
 					costm = cos_sigma - 2.0 * (sin_eta1 * sin_eta2 / cos2_azeq);
 					/* v18 (Rapp 1.91) */
 				}
@@ -410,6 +484,8 @@ final class GeoDist {
 			}
 		} /* End of while q_continue_looping */
 
+		flags[72] = !q_continue_looping || it >= 100;
+
 		/* Convergence */
 
 		if (p_dist != null) {
@@ -417,7 +493,7 @@ final class GeoDist {
 			 * Helmert 1880 from Vincenty's
 			 * "Geodetic inverse solution between antipodal points"
 			 */
-
+			flags[73] = true;
 			ep2 = 1.0 / (boa * boa) - 1.0;
 			bige = Math.sqrt(1.0 + ep2 * cos2_azeq); /* 15 */
 			bigf = (bige - 1.0) / (bige + 1.0); /* 16 */
@@ -432,22 +508,26 @@ final class GeoDist {
 			dist = (boa * a) * biga * (sigma - dsigma); /* 20 */
 
 			p_dist.val = dist;
-		}
+		} else flags[74] = true;
 
 		if (p_az12 != null || p_az21 != null) {
+			flags[75] = true;
 			if (kind == 2) /* antipodal */
 			{
+				flags[76] = true;
 				az12 = sin_azeq / cos_eta1;
 				az21 = Math.sqrt(1.0 - az12 * az12);
 				if (temp < 0.0) {
+					flags[77] = true;
 					az21 = -az21;
-				}
+				} else flags[78] = true;
 				az12 = Math.atan2(az12, az21);
 				tem1 = -sin_azeq;
 				tem2 = sin_eta1 * sin_sigma - cos_eta1 * cos_sigma * az21;
 				az21 = Math.atan2(tem1, tem2);
 			} else /* long-line */
 			{
+				flags[79] = true;
 				tem1 = cos_eta2 * sin_lam_sph;
 				tem2 = cos_eta1 * sin_eta2 - sin_eta1 * cos_eta2 * cos_lam_sph;
 				az12 = Math.atan2(tem1, tem2);
@@ -457,11 +537,13 @@ final class GeoDist {
 			}
 
 			if (p_az12 != null) {
+				flags[80] = true;
 				p_az12.val = lam_delta(az12);
-			}
+			} else flags[81] = true;
 			if (p_az21 != null) {
+				flags[82] = true;
 				p_az21.val = lam_delta(az21);
-			}
+			} else flags[83] = true;
 		}
 	}
 }
