@@ -574,18 +574,104 @@ public class TestJsonParser extends TestCase {
 	}
 
 
+	/**
+	 * Test that append quote appends linebreakers correctly
+	 */
 	@Test
-	public void testAppendQuote(){
+	public void testAppendQuoteLinebreaker(){
 		JsonStringWriter stringWriter = new JsonStringWriter();
-		String init = "/";
-		String expected  = "{\"\\/\"}";
-		System.out.println("init: " + init);
-		System.out.println("expected: " + expected);
-
+		String expected = "{\"\\b\"\"this is a line breaker \\b as you can se\"}";
 		stringWriter.startObject();
-		stringWriter.testAppendQuote_InitjsonString(init);
-		stringWriter.testAppendQuote_("//");
+		stringWriter.testAppendQuote_("\b");
+		stringWriter.testAppendQuote_("this is a line breaker \b as you can se");
 		stringWriter.endObject();
-		System.out.println(stringWriter.getJson().toString());
+		assertEquals(expected, stringWriter.getJson().toString());
 	}
+
+	/**
+	 * Test that append quote appends newLines correctly
+	 */
+	@Test
+	public void testAppendQuoteNewLine(){
+		JsonStringWriter stringWriter = new JsonStringWriter();
+		String expected = "{\"\\n\"\"this is a new line \\n as you can se\"}";
+		stringWriter.startObject();
+		stringWriter.testAppendQuote_("\n");
+		stringWriter.testAppendQuote_("this is a new line \n as you can se");
+		stringWriter.endObject();
+		assertEquals(expected, stringWriter.getJson().toString());
+	}
+
+	/**
+	 * Test that append quote appends tabs correctly
+	 */
+	@Test
+	public void testAppendQuoteTabs(){
+		JsonStringWriter stringWriter = new JsonStringWriter();
+		String expected = "{\"\\t\"\"this is a tab \\t as you can se\"}";
+		stringWriter.startObject();
+		stringWriter.testAppendQuote_("\t");
+		stringWriter.testAppendQuote_("this is a tab \t as you can se");
+		stringWriter.endObject();
+		assertEquals(expected, stringWriter.getJson().toString());
+	}
+
+	/**
+	 * Test that append quote appends carrige return correctly
+	 */
+	@Test
+	public void testAppendQuoteCarrigeReturn(){
+		JsonStringWriter stringWriter = new JsonStringWriter();
+		String expected = "{\"\\r\"\"this is a carrige return \\r as you can se\"}";
+		stringWriter.startObject();
+		stringWriter.testAppendQuote_("\r");
+		stringWriter.testAppendQuote_("this is a carrige return \r as you can se");
+		stringWriter.endObject();
+		assertEquals(expected, stringWriter.getJson().toString());
+	}
+
+	/**
+	 * Test that append quote appends form feed correctly
+	 */
+	@Test
+	public void testAppendQuoteFormFeed(){
+		JsonStringWriter stringWriter = new JsonStringWriter();
+		String expected = "{\"\\f\"\"this is a form feed \\f as you can se\"}";
+		stringWriter.startObject();
+		stringWriter.testAppendQuote_("\f");
+		stringWriter.testAppendQuote_("this is a form feed \f as you can se");
+		stringWriter.endObject();
+		assertEquals(expected, stringWriter.getJson().toString());
+	}
+
+	/**
+	 * Test that append quote appends double backslash correctly
+	 */
+	@Test
+	public void testAppendQuoteDoubleBackslash(){
+		JsonStringWriter stringWriter = new JsonStringWriter();
+		String expected = "{\"\\\\\"\"this is a double backslash \\\\ as you can se\"}";
+		stringWriter.startObject();
+		stringWriter.testAppendQuote_("\\");
+		stringWriter.testAppendQuote_("this is a double backslash \\ as you can se");
+		stringWriter.endObject();
+		assertEquals(expected, stringWriter.getJson().toString());
+	}
+
+	/**
+	 * Test that append quote appends forward slash correctly
+	 */
+	@Test
+	public void testAppendQuoteForwardSlash(){
+		JsonStringWriter stringWriter = new JsonStringWriter();
+		String expected = "{\"/\"\"this is a forward slash / as you can se\"}";
+		stringWriter.startObject();
+		stringWriter.testAppendQuote_("/");
+		stringWriter.testAppendQuote_("this is a forward slash / as you can se");
+		stringWriter.endObject();
+		assertEquals(expected, stringWriter.getJson().toString());
+	}
+
+
+
 }
