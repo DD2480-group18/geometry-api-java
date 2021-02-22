@@ -27,6 +27,8 @@ package com.esri.core.geometry;
 import junit.framework.TestCase;
 import org.junit.Test;
 
+import javax.sound.sampled.Clip;
+
 public class TestClip extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
@@ -412,6 +414,64 @@ public class TestClip extends TestCase {
 		} catch (Exception e) {
 			assertTrue(false);
 		}
+	}
 
+	/**
+	 * This test that the method catches geometries that are empty.
+	 */
+	@Test
+	public static void testEmptyGeometry() {
+		Geometry polygon = new Polygon(); // Initialise geometry
+
+		Geometry newGeometry = Clipper.clip(polygon, null, 0, 0);
+		assertTrue(newGeometry.isEmpty()); // Should return the geometry object
+
+	}
+
+	/**
+	 * This test that the method catches that the envelope is not empty.
+	 */
+	@Test
+	public static void testEmptyEvelope() {
+		Geometry notEmptyGeometry = makePolygon();
+		Envelope2D envelope2D = new Envelope2D();
+
+		Geometry newGeometry = Clipper.clip(notEmptyGeometry, envelope2D, 0, 0);
+
+		assertTrue(newGeometry.isEmpty()); // Should return an empty geometry.
+	}
+
+	/**
+	 * This method checks that the if the condition for optmization is not met then it should return empty geometry.
+	 */
+	@Test
+	public static void testEnvelopNotIntersectOptimize() {
+		Geometry notEmptyGeometry = new Envelope(new Point(0, 0), 2, 2);
+		Envelope2D envelopeTest = new Envelope2D();
+
+		envelopeTest.xmin = 0;
+		envelopeTest.xmax = 20;
+		envelopeTest.ymin = 5;
+		envelopeTest.ymax = 15;
+
+		Geometry result = Clipper.clip(notEmptyGeometry, envelopeTest, 0, 0);
+		assertTrue(result.isEmpty());
+	}
+
+	/**
+	 * This method tests that an envelope is not intersecting with the envelope parameter.
+	 */
+	@Test
+	public static void testNotEnvelopeNotIntersect() {
+		Geometry notEmptyGeometry = makePolygon();
+		Envelope2D notEmptyEnvelope = new Envelope2D();
+
+		notEmptyEnvelope.xmin = 100;
+		notEmptyEnvelope.xmax = 200;
+		notEmptyEnvelope.ymin = 100;
+		notEmptyEnvelope.ymax = 200;
+
+		Geometry result = Clipper.clip(notEmptyGeometry, notEmptyEnvelope, 0, 0);
+		assertTrue(result.isEmpty());
 	}
 }
