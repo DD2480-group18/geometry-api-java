@@ -114,11 +114,6 @@ public class TestLineIntersect {
         assertEquals(0.5, params2[0], PARAM_PRECISION);
         assertEquals(l1.getEndX(), intersection[0].x, PARAM_PRECISION);
         assertEquals(l1.getEndY(), intersection[0].y, PARAM_PRECISION);
-        // bug ??
-        // should probably be end of line1, not line2? see Line.java:1007
-        // adjusted in source code
-        //System.err.println(l1.getEndY());
-        //System.err.println(intersection[0].y);
     }
 
 }

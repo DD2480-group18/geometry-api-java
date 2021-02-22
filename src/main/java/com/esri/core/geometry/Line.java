@@ -847,7 +847,6 @@ public final class Line extends Segment implements Serializable {
 		double t12 = line1._intersection(line2.getEndXY(), tolerance, false);
 		double t21 = line2._intersection(line1.getStartXY(), tolerance, false);
 		double t22 = line2._intersection(line1.getEndXY(), tolerance, false);
-
 		if (!NumberUtils.isNaN(t11)) {
 			// COVERAGE ID: 1
 			Coverage.incrementCoverage(1);
@@ -1005,7 +1004,7 @@ public final class Line extends Segment implements Serializable {
 					// COVERAGE ID: 33
 					Coverage.incrementCoverage(33);
 					intersectionPoints[counter] = Point2D.construct(
-							line2.m_xEnd, line2.m_yEnd);
+							line1.m_xEnd, line1.m_yEnd);
 				}else{
 					// COVERAGE ID: 34
 					Coverage.incrementCoverage(34);
