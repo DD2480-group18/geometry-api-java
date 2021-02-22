@@ -25,6 +25,7 @@ public class TestZZZfinalTest {
 	/**
 	 * This test prints out branch coverage of Wkt.find_tolerance_from_wkt
 	 */
+	/* not used in this branch
 	@Test
 	public void testWkt(){
 		int T = 0;
@@ -38,4 +39,5 @@ public class TestZZZfinalTest {
 		System.out.println("Branches not covered: " + F);
 		System.out.println("percentage: " + ((double)T/(F+T)));
 	}
+	 */
 }

@@ -32,112 +32,90 @@
  * after the end bracket the next value is what we are looking for
  */
 
+/**
+ * To lower the cyclomatic complexity of this function we could break out part of it into another function.
+ * If we choose the sections below "UNIT" we can both decrease the complexity and remove code duplication.
+ * This should lower the code complexity significantly.
+ */
+
 package com.esri.core.geometry;
 
 final class Wkt {
-	public static boolean[] IDs = new boolean[33];
 	public static double find_tolerance_from_wkt(String buffer) {
 		double tolerance = -1.0;
 
 		if (buffer != null && buffer.length() > 0) {
-			IDs[0] = true;
 			int n1, n2;
 
 			n1 = buffer.indexOf("PROJCS");
 			if (n1 >= 0) {
-				IDs[1] = true;
 				double factor = 0.0;
 
-				n1 = buffer.lastIndexOf("UNIT");
-				if (n1 >= 0) {
-					IDs[2] = true;
-					n1 = buffer.indexOf(',', n1 + 4);
-					if (n1 > 0) {
-						IDs[3] = true;
-						n1++;
-						n2 = buffer.indexOf(']', n1 + 1);
-						if (n2 > 0) {
-							IDs[4] = true;
-							try {
-								factor = Double.parseDouble(buffer.substring(
-										n1, n2));
-							} catch (NumberFormatException e) {
-								IDs[5] = true;
-								factor = 0.0;
-							}
-						} else IDs[6] = true;
-					} else IDs[7] = true;
-				} else IDs[8] = true;
+				factor = findFactor(buffer, buffer.lastIndexOf("UNIT"));
 
 				if (factor > 0.0) {
-					IDs[9] = true;
 					tolerance = (0.001 / factor);
-				} else IDs[10] = true;
+				} 
 			}
 
 			else {
-				IDs[11] = true;
 				n1 = buffer.indexOf("GEOGCS");
 				if (n1 >= 0) {
-					IDs[12] = true;
 					double axis = 0.0;
 					double factor = 0.0;
 
 					n1 = buffer.indexOf("SPHEROID", n1 + 6);
 					if (n1 > 0) {
-						IDs[13] = true;
 						n1 = buffer.indexOf(',', n1 + 8);
 						if (n1 > 0) {
-							IDs[14] = true;
 							n1++;
 							n2 = buffer.indexOf(',', n1 + 1);
 							if (n2 > 0) {
-								IDs[15] = true;
 								try {
 									axis = Double.parseDouble(buffer.substring(
 											n1, n2));
 								} catch (NumberFormatException e) {
-									IDs[16] = true;
 									axis = 0.0;
 								}
-							} else IDs[17] = true;
+							} 
 
 							if (axis > 0.0) {
-								IDs[18] = true;
-								n1 = buffer.indexOf("UNIT", n2 + 1);
-								if (n1 >= 0) {
-									IDs[19] = true;
-									n1 = buffer.indexOf(',', n1 + 4);
-									if (n1 > 0) {
-										IDs[20] = true;
-										n1++;
-										n2 = buffer.indexOf(']', n1 + 1);
-										if (n2 > 0) {
-											IDs[21] = true;
-											try {
-												factor = Double
-														.parseDouble(buffer
-																.substring(n1,
-																		n2));
-											} catch (NumberFormatException e) {
-												IDs[22] = true;
-												factor = 0.0;
-											}
-										} else IDs[23] = true;
-									} else IDs[24] = true;
-								} else IDs[25] = true;
-							} else IDs[26] = true;
-						} else IDs[27] = true;
-					} else IDs[28] = true;
+								factor = findFactor(buffer, buffer.indexOf("UNIT", n2+1));
+
+							} 
+						} 
+					} 
 
 					if (axis > 0.0 && factor > 0.0){
-						IDs[29] = true;
 						tolerance = (0.001 / (axis * factor));
-					} else IDs[30] = true;
-				}else IDs[31] = true;
+					} 
+				}
 			}
-		} else IDs[32] = true;
+		} 
 
 		return tolerance;
 	}
+
+	private static double findFactor(String buffer, int n1){
+		int n2 = 0;
+		double factor = 0.0;
+
+		if (n1 >= 0) {
+			n1 = buffer.indexOf(',', n1 + 4);
+			if (n1 > 0) {
+				n1++;
+				n2 = buffer.indexOf(']', n1 + 1);
+				if (n2 > 0) {
+					try {
+						factor = Double.parseDouble(buffer.substring(n1, n2));
+					} catch (NumberFormatException e) {
+						factor = 0.0;
+					}
+				}
+			}
+		}
+
+		return factor;
+	}
 }
+
