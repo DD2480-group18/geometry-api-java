@@ -99,7 +99,7 @@
 
 		<!-- dependency versions -->
 		<jackson.version>2.9.6</jackson.version>
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<jol.version>0.9</jol.version>
 
 		<!-- plugin versions -->
@@ -129,6 +129,11 @@
 			<version>${jol.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.openclover</groupId>
+			<artifactId>clover-maven-plugin</artifactId>
+			<version>4.4.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -157,6 +162,11 @@
 						<source>${java.source.version}</source>
 						<target>${java.target.version}</target>
 					</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.openclover</groupId>
+				<artifactId>clover-maven-plugin</artifactId>
+				<version>4.4.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
