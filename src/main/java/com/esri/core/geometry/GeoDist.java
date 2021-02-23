@@ -159,81 +159,17 @@ final class GeoDist {
 
 		if (PE_EQ(phi1, phi2) && (PE_ZERO(dlam) || PE_EQ(PE_ABS(phi1), PE_PI2))) {
 			/* Check that the points are not the same */
-			if (p_dist != null)
-				p_dist.val = 0.0;
-			if (p_az12 != null)
-				p_az12.val = 0.0;
-			if (p_az21 != null)
-				p_az21.val = 0.0;
-
+			handleSamePoint(p_dist, p_az12, p_az21);
 			return;
 		} else if (PE_EQ(phi1, -phi2)) {
 			/* Check if they are perfectly antipodal */
-			if (PE_EQ(PE_ABS(phi1), PE_PI2)) {
-				/* Check if they are at opposite poles */
-				if (p_dist != null)
-					p_dist.val = 2.0 * q90(a, e2);
-
-				if (p_az12 != null)
-					p_az12.val = phi1 > 0.0 ? lam_delta(PE_PI - lam_delta(lam2))
-							: lam_delta(lam2);
-
-				if (p_az21 != null)
-					p_az21.val = phi1 > 0.0 ? lam_delta(lam2) : lam_delta(PE_PI
-							- lam_delta(lam2));
-
-				return;
-			} else if (PE_EQ(PE_ABS(dlam), PE_PI)) {
-				/* Other antipodal */
-				if (p_dist != null)
-					p_dist.val = 2.0 * q90(a, e2);
-				if (p_az12 != null)
-					p_az12.val = 0.0;
-				if (p_az21 != null)
-					p_az21.val = 0.0;
-				return;
-			}
+			handleAntipodal(a, e2, p_dist, p_az12, p_az21, phi1, phi2, lam2, dlam);
+			return;
 		}
 
 		if (PE_ZERO(e2)) /* Sphere */
 		{
-			double cos_phi1, cos_phi2;
-			double sin_phi1, sin_phi2;
-
-			cos_phi1 = Math.cos(phi1);
-			cos_phi2 = Math.cos(phi2);
-			sin_phi1 = Math.sin(phi1);
-			sin_phi2 = Math.sin(phi2);
-
-			if (p_dist != null) {
-				tem1 = Math.sin((phi2 - phi1) / 2.0);
-				tem2 = Math.sin(dlam / 2.0);
-				sigma = 2.0 * Math.asin(Math.sqrt(tem1 * tem1 + cos_phi1
-						* cos_phi2 * tem2 * tem2));
-				p_dist.val = sigma * a;
-			}
-
-			if (p_az12 != null) {
-				if (PE_EQ(PE_ABS(phi1), PE_PI2)) /* Origin at N or S Pole */
-				{
-					p_az12.val = phi1 < 0.0 ? lam2 : lam_delta(PE_PI - lam2);
-				} else {
-					p_az12.val = Math.atan2(cos_phi2 * Math.sin(dlam), cos_phi1
-							* sin_phi2 - sin_phi1 * cos_phi2 * Math.cos(dlam));
-				}
-			}
-
-			if (p_az21 != null) {
-				if (PE_EQ(PE_ABS(phi2), PE_PI2)) /* Destination at N or S Pole */
-				{
-					p_az21.val = phi2 < 0.0 ? lam1 : lam_delta(PE_PI - lam1);
-				} else {
-					p_az21.val = Math.atan2(cos_phi1 * Math.sin(dlam), sin_phi2
-							* cos_phi1 * Math.cos(dlam) - cos_phi2 * sin_phi1);
-					p_az21.val = lam_delta(p_az21.val + PE_PI);
-				}
-			}
-
+			handleSpheres(a, p_dist, p_az12, p_az21, dlam, phi1, phi2, lam1, lam2);
 			return;
 		}
 
@@ -461,6 +397,90 @@ final class GeoDist {
 			}
 			if (p_az21 != null) {
 				p_az21.val = lam_delta(az21);
+			}
+		}
+	}
+
+	/**
+	 * Help function produced from refactoring. Handles when destination point is origin point
+	 */
+	private static void handleSamePoint(PeDouble p_dist, PeDouble p_az12, PeDouble p_az21) {
+		if (p_dist != null)
+			p_dist.val = 0.0;
+		if (p_az12 != null)
+			p_az12.val = 0.0;
+		if (p_az21 != null)
+			p_az21.val = 0.0;
+	}
+
+	/**
+	 * Help function produced from refactoring. Handles points that are antipodal to each other
+	 * i.e. on exactly opposite sides of the Earth's core.
+	 */
+	private static void handleAntipodal(double a, double e2, PeDouble p_dist, PeDouble p_az12, PeDouble p_az21, double phi1, double phi2, double lam2, double dlam) {
+		/* Check if they are perfectly antipodal */
+		if (PE_EQ(PE_ABS(phi1), PE_PI2)) {
+			/* Check if they are at opposite poles */
+			if (p_dist != null)
+				p_dist.val = 2.0 * q90(a, e2);
+
+			if (p_az12 != null)
+				p_az12.val = phi1 > 0.0 ? lam_delta(PE_PI - lam_delta(lam2))
+						: lam_delta(lam2);
+
+			if (p_az21 != null)
+				p_az21.val = phi1 > 0.0 ? lam_delta(lam2) : lam_delta(PE_PI
+						- lam_delta(lam2));
+
+		} else if (PE_EQ(PE_ABS(dlam), PE_PI)) {
+			/* Other antipodal */
+			if (p_dist != null)
+				p_dist.val = 2.0 * q90(a, e2);
+			if (p_az12 != null)
+				p_az12.val = 0.0;
+			if (p_az21 != null)
+				p_az21.val = 0.0;
+		}
+	}
+
+	/**
+	 * Help function for geodesic_distance_ngs
+	 */
+	private static void handleSpheres(double a, PeDouble p_dist, PeDouble p_az12, PeDouble p_az21, double dlam, double phi1, double phi2, double lam1, double lam2) {
+		double cos_phi1, cos_phi2;
+		double sin_phi1, sin_phi2;
+
+		cos_phi1 = Math.cos(phi1);
+		cos_phi2 = Math.cos(phi2);
+		sin_phi1 = Math.sin(phi1);
+		sin_phi2 = Math.sin(phi2);
+
+		if (p_dist != null) {
+			double tem1 = Math.sin((phi2 - phi1) / 2.0);
+			double tem2 = Math.sin(dlam / 2.0);
+			double sigma = 2.0 * Math.asin(Math.sqrt(tem1 * tem1 + cos_phi1
+					* cos_phi2 * tem2 * tem2));
+			p_dist.val = sigma * a;
+		}
+
+		if (p_az12 != null) {
+			if (PE_EQ(PE_ABS(phi1), PE_PI2)) /* Origin at N or S Pole */
+			{
+				p_az12.val = phi1 < 0.0 ? lam2 : lam_delta(PE_PI - lam2);
+			} else {
+				p_az12.val = Math.atan2(cos_phi2 * Math.sin(dlam), cos_phi1
+						* sin_phi2 - sin_phi1 * cos_phi2 * Math.cos(dlam));
+			}
+		}
+
+		if (p_az21 != null) {
+			if (PE_EQ(PE_ABS(phi2), PE_PI2)) /* Destination at N or S Pole */
+			{
+				p_az21.val = phi2 < 0.0 ? lam1 : lam_delta(PE_PI - lam1);
+			} else {
+				p_az21.val = Math.atan2(cos_phi1 * Math.sin(dlam), sin_phi2
+						* cos_phi1 * Math.cos(dlam) - cos_phi2 * sin_phi1);
+				p_az21.val = lam_delta(p_az21.val + PE_PI);
 			}
 		}
 	}
