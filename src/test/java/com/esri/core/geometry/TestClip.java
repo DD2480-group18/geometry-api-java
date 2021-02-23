@@ -418,6 +418,9 @@ public class TestClip extends TestCase {
 
 	/**
 	 * This test that the method catches geometries that are empty.
+	 * Requirement: This test requires that the geometry parameter is empty
+	 * which means that geometry is an object with no geometry information associated with it.
+	 * If the function takes an empty geometry then it should trigger the condition and return the same object.
 	 */
 	@Test
 	public static void testEmptyGeometry() {
@@ -430,6 +433,9 @@ public class TestClip extends TestCase {
 
 	/**
 	 * This test that the method catches that the envelope is not empty.
+	 * Requirement: This test is similar but this time geometry parameters is a geometry
+	 * with geometric information but the envelope is empty. If this function takes an
+	 * empty envelope then it will return an empty geometry stated in the if statement.
 	 */
 	@Test
 	public static void testEmptyEvelope() {
@@ -443,6 +449,8 @@ public class TestClip extends TestCase {
 
 	/**
 	 * This method checks that the if the condition for optmization is not met then it should return empty geometry.
+	 * Requirement: This test requires that the geometry is some geometric type of envelope and then the function
+	 * tests whether the geometry intersects or not with a declared envelope.
 	 */
 	@Test
 	public static void testEnvelopNotIntersectOptimize() {
@@ -460,6 +468,9 @@ public class TestClip extends TestCase {
 
 	/**
 	 * This method tests that an envelope is not intersecting with the envelope parameter.
+	 * Requirement: This test requires that the envelope parameter to be outside of
+	 * the envelope declared in the function. We do this by placing the envelope parameter
+	 * outside of the declared envelope so we enter the if statement in the code.
 	 */
 	@Test
 	public static void testNotEnvelopeNotIntersect() {
