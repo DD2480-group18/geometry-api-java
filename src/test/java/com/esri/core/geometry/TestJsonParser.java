@@ -573,6 +573,12 @@ public class TestJsonParser extends TestCase {
 		Assert.assertTrue(mg.getSpatialReference().getOldID() == 102100);
 	}
 
+	/**
+	 * Requierments:
+	 * There are no real requirements to the input data to this function.
+	 * The purpose of the function is too append a string with quotes to an internal json string, 
+	 * it does this by looking through all the chars in the input string and checking that all special chars are escaped properly. 
+	 */
 
 	/**
 	 * Test that append quote appends linebreakers correctly
