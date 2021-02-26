@@ -53,8 +53,8 @@ public class TestGeodesicDistanceNgs {
         PeDouble p_az21 = new PeDouble(-63);
         GeoDist.geodesic_distance_ngs(a, e2, lam1, phi1, lam2, phi2, p_dist, p_az12, p_az21);
         assertEquals(0, Double.compare(0.0, p_dist.val));
-        assertEquals(0, Double.compare(0.0, p_dist.val));
-        assertEquals(0, Double.compare(0.0, p_dist.val));
+        assertEquals(0, Double.compare(0.0, p_az12.val));
+        assertEquals(0, Double.compare(0.0, p_az21.val));
     }
 
     /**
